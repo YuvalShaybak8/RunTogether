@@ -74,7 +74,13 @@ const HomePage = ({ navigation }) => {
         setTimePickerVisible(prevTimePickerVisible => !prevTimePickerVisible);
     };
 
+    const goToPostScreen = () => {
+        navigation.navigate('Create Post');
+    }
 
+    const goToProfileScreen = () => {
+        navigation.navigate('Profile Details');
+    }
     return (
         <View style={styles.container}>
             <>
@@ -200,6 +206,12 @@ const HomePage = ({ navigation }) => {
                     ))}
                 </ScrollView>
             </>
+            <TouchableOpacity onPress={goToPostScreen}>
+                <Text >Go to create post screen</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={goToProfileScreen}>
+                <Text >Go to profile screen</Text>
+            </TouchableOpacity>
         </View>
     );
 
