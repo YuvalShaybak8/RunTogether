@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar,  KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Image } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 
@@ -21,68 +21,74 @@ const LoginScreen = ({ navigation }) => {
         navigation.navigate('Sign Up');
     };
 
-    return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : null}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        >
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
-            <View style={styles.content}>
-                <Image source={require('../assets/logo.png')} style={styles.logo} />
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Run Together</Text>
-                    <Text style={styles.subtitle}>Log into your account</Text>
-                </View>
-                <View style={styles.inputContainer}>
-                    <View style={styles.icon}>
-                        <Feather name="mail" size={22} color="black" />
-                    </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter your email address"
-                        keyboardType="email-address"
-                        placeholderTextColor="#7C808D"
-                        selectionColor="#3662AA"
-                        onChangeText={setEmail}
-                        value={email}
-                    />
-                </View>
-                <View style={styles.inputContainer}>
-                    <View style={styles.icon}>
-                        <Feather name="lock" size={22} color="black" />
-                    </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter your password"
-                        placeholderTextColor="#7C808D"
-                        selectionColor="#3662AA"
-                        secureTextEntry={!passwordIsVisible}
-                        onChangeText={setPassword}
-                        value={password}
-                    />
-                    <TouchableOpacity
-                        style={styles.passwordVisibleButton}
-                        onPress={() => setPasswordIsVisible(!passwordIsVisible)}
-                    >
-                        <Feather
-                            name={passwordIsVisible ? "eye" : "eye-off"}
-                            size={20}
-                            color="black"
-                        />
-                    </TouchableOpacity>
-                </View>
+    const handleDismissKeyboard = () => {
+        Keyboard.dismiss();
+    };
 
-                <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
-                    <Text style={styles.signupText}>Didn't sign up yet?</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                    <Text style={styles.loginButtonText}>Log in</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
-        </KeyboardAvoidingView>
+    return (
+        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior={Platform.OS === 'ios' ? 'padding' : null}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+                <SafeAreaView style={styles.container}>
+                    <StatusBar barStyle="dark-content" />
+                    <View style={styles.content}>
+                        <Image source={require('../assets/logo.png')} style={styles.logo} />
+                        <View style={styles.titleContainer}>
+                            <Text style={styles.title}>Run Together</Text>
+                            <Text style={styles.subtitle}>Log into your account</Text>
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <View style={styles.icon}>
+                                <Feather name="mail" size={22} color="black" />
+                            </View>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter your email address"
+                                keyboardType="email-address"
+                                placeholderTextColor="#7C808D"
+                                selectionColor="#3662AA"
+                                onChangeText={setEmail}
+                                value={email}
+                            />
+                        </View>
+                        <View style={styles.inputContainer}>
+                            <View style={styles.icon}>
+                                <Feather name="lock" size={22} color="black" />
+                            </View>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter your password"
+                                placeholderTextColor="#7C808D"
+                                selectionColor="#3662AA"
+                                secureTextEntry={!passwordIsVisible}
+                                onChangeText={setPassword}
+                                value={password}
+                            />
+                            <TouchableOpacity
+                                style={styles.passwordVisibleButton}
+                                onPress={() => setPasswordIsVisible(!passwordIsVisible)}
+                            >
+                                <Feather
+                                    name={passwordIsVisible ? "eye" : "eye-off"}
+                                    size={20}
+                                    color="black"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+                            <Text style={styles.signupText}>Didn't sign up yet?</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                            <Text style={styles.loginButtonText}>Log in</Text>
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
+            </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
     );
 };
 
