@@ -45,7 +45,7 @@ const CreatePost = () => {
                     <Text style={styles.headerText}>Post</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {image ? <Image source={{ uri: image }} style={styles.image} /> : <Image source={require('../assets/logo.png')} style={styles.image} />}
+                    {image ? <Image source={{ uri: image }} style={styles.image} /> : <Image source={require('../assets/post_img2.jpg')} style={styles.image} />}
                 </View>
                 <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                     <Text style={styles.uploadText}>Upload your photo</Text>
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     image: {
         width: '80%',
         height: 300,
+        borderRadius: 40,
         resizeMode: 'contain',
         marginVertical: 16,
         alignSelf: 'center',
