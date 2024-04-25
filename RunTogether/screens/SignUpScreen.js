@@ -1,66 +1,84 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { Feather } from "@expo/vector-icons"
 
 const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const [passwordIsVisible, setPasswordIsVisible] = useState(false)
 
     const handleSignUp = () => {
-        // Perform signup logic here
         console.warn('Signing up with:', email, password);
-        // Here you can implement the logic to send the user data to your backend for registration
     };
 
     const handleLoginRedirect = () => {
-        // Navigate back to the login screen
         navigation.goBack();
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.logo}>Sign Up</Text>
-
-            <View style={styles.inputView}>
-                <TextInput
-                    style={styles.inputText}
-                    placeholder="Email..."
-                    placeholderTextColor="#003f5c"
-                    value={email}
-                    onChangeText={text => setEmail(text)}
-                />
+        <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.content}>
+                <Image source={require('../assets/logo.png')} style={styles.logo} />
+                <Text style={styles.title}>Sign up</Text>
+                <Text style={styles.subtitle}>Create your account</Text>
+                <View style={styles.inputContainer}>
+                    <View style={styles.icon}>
+                        <Feather name="user" size={22} color="black" />
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your user name"
+                        placeholderTextColor="#7C808D"
+                        selectionColor="#3662AA"
+                        onChangeText={setUsername}
+                        value={username}
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <View style={styles.icon}>
+                        <Feather name="mail" size={22} color="black" />
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your email address"
+                        keyboardType="email-address"
+                        placeholderTextColor="#7C808D"
+                        selectionColor="#3662AA"
+                        onChangeText={setEmail}
+                        value={email}
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <View style={styles.icon}>
+                        <Feather name="lock" size={22} color="black" />
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your password"
+                        placeholderTextColor="#7C808D"
+                        selectionColor="#3662AA"
+                        secureTextEntry={!passwordIsVisible}
+                        onChangeText={setPassword}
+                        value={password}
+                    />
+                    <TouchableOpacity
+                        style={styles.passwordVisibleButton}
+                        onPress={() => setPasswordIsVisible(!passwordIsVisible)}
+                    >
+                        <Feather
+                            name={passwordIsVisible ? "eye" : "eye-off"}
+                            size={20}
+                            color="black"
+                        />
+                    </TouchableOpacity>
+                </View>
+                <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
+                    <Text style={styles.loginButtonText}>Create your account</Text>
+                </TouchableOpacity>
             </View>
-
-            <View style={styles.inputView}>
-                <TextInput
-                    secureTextEntry
-                    style={styles.inputText}
-                    placeholder="Password..."
-                    placeholderTextColor="#003f5c"
-                    value={password}
-                    onChangeText={text => setPassword(text)}
-                />
-            </View>
-
-            <View style={styles.inputView}>
-                <TextInput
-                    secureTextEntry
-                    style={styles.inputText}
-                    placeholder="Confirm Password..."
-                    placeholderTextColor="#003f5c"
-                    value={confirmPassword}
-                    onChangeText={text => setConfirmPassword(text)}
-                />
-            </View>
-
-            <TouchableOpacity style={styles.signupBtn} onPress={handleSignUp}>
-                <Text style={styles.loginText}>SIGN UP</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleLoginRedirect}>
-                <Text style={styles.loginText}>Already have an account? Log in</Text>
-            </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -68,40 +86,74 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
+    },
+    content: {
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     logo: {
-        fontWeight: 'bold',
-        fontSize: 50,
-        color: '#fe9836',
-        marginBottom: 40,
-    },
-    inputView: {
-        width: '80%',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 25,
-        height: 50,
+        width: 220,
+        height: 150,
         marginBottom: 20,
-        justifyContent: 'center',
-        padding: 20,
     },
-    inputText: {
-        height: 50,
-        color: 'black',
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 6,
     },
-    signupBtn: {
-        width: '80%',
-        backgroundColor: '#003f5c',
-        borderRadius: 25,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
+    subtitle: {
+        fontSize: 14,
+        color: '#9095A0FF',
+        marginBottom: 40
+    },
+    inputContainer: {
+        flexDirection: "row",
+        width: "80%",
+        alignItems: "center",
         marginBottom: 10,
+        height: 50,
+        borderColor: 'gray',
+        borderRadius: 12,
+        borderWidth: 1,
+        marginVertical: 10,
+        paddingHorizontal: 10,
     },
-    loginText: {
-        color: 'white',
+    icon: {
+        marginRight: 15,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        borderBottomWidth: 0, // Set to 0 to remove the underline
+    },
+    passwordVisibleButton: {
+        position: "absolute",
+        right: 10,
+    },
+    loginButton: {
+        backgroundColor: '#f7706d',
+        width: '80%',
+        alignItems: 'center',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        marginTop: 30,
+    },
+    loginButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    signupButton: {
+        alignItems: 'flex-end',
+        width: '80%',
+    },
+    signupText: {
+        marginTop: 12,
+        color: '#C70E0AFF',
     },
 });
+
+
 
 export default SignUpScreen;
