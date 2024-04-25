@@ -4,6 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Button } from 'react-native-elements';
+import NavigationBar from './NavigationBar';
 
 const HomePage = ({ navigation }) => {
     const [postText, setPostText] = useState('');
@@ -83,6 +84,8 @@ const HomePage = ({ navigation }) => {
     }
     return (
         <View style={styles.container}>
+            {/* ... */}
+            <NavigationBar navigation={navigation} />
             <>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => { setLetsRunVisible(!letsRunVisible); setMotivateVisible(false) }} style={styles.button}>
