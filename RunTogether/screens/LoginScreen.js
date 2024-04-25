@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar,  KeyboardAvoidingView, Platform } from 'react-native';
 import { Image } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 
@@ -22,12 +22,19 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : null}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" />
             <View style={styles.content}>
                 <Image source={require('../assets/logo.png')} style={styles.logo} />
-                <Text style={styles.title}>Run Together</Text>
-                <Text style={styles.subtitle}>Log into your account</Text>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Run Together</Text>
+                    <Text style={styles.subtitle}>Log into your account</Text>
+                </View>
                 <View style={styles.inputContainer}>
                     <View style={styles.icon}>
                         <Feather name="mail" size={22} color="black" />
@@ -75,6 +82,7 @@ const LoginScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
+        </KeyboardAvoidingView>
     );
 };
 
