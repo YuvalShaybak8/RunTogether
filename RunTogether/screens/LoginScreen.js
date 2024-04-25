@@ -133,6 +133,7 @@ const LoginScreen = ({ navigation }) => {
             <Image source={require('../assets/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Run Together</Text>
             <TextInput
+
                 style={styles.input}
                 placeholder="Enter your email address"
                 keyboardType="email-address"
@@ -142,11 +143,11 @@ const LoginScreen = ({ navigation }) => {
                 placeholder="Enter your password"
                 secureTextEntry
             />
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                <Text style={styles.loginButtonText}>Log in</Text>
-            </TouchableOpacity>
             <TouchableOpacity onPress={handleSignUp}>
                 <Text style={styles.signupText}>Didn't sign up yet?</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.loginButtonText}>Log in</Text>
             </TouchableOpacity>
         </View>
     );
