@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'react-native';
+import { Feather } from "@expo/vector-icons"
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
+    const [passwordIsVisible, setPasswordIsVisible] = useState(false)
     const handleLogin = () => {
         // Simulated authentication logic
         if (email === '' && password === '') {
@@ -27,37 +28,51 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.container}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Run Together</Text>
-
-            <View style={styles.inputView}>
+            <View style={styles.inputContainer}>
+                <View style={styles.icon}>
+                    <Feather name="mail" size={22} color="#7C808D" />
+                </View>
                 <TextInput
-                    style={styles.inputText}
-                    placeholder="Email..."
-                    placeholderTextColor="#003f5c"
+                    style={styles.input}
+                    placeholder="Enter your email address"
+                    keyboardType="email-address"
+                    placeholderTextColor="#7C808D"
+                    selectionColor="#3662AA"
+                    onChangeText={setEmail}
                     value={email}
-                    onChangeText={text => setEmail(text)}
                 />
-                <Image source={require('../assets/email-left-icon.svg')} style={styles.emailSvg} />
             </View>
-
-            <View style={styles.inputView}>
+            <View style={styles.inputContainer}>
+                <View style={styles.icon}>
+                    <Feather name="lock" size={22} color="#7C808D" />
+                </View>
                 <TextInput
-                    secureTextEntry
-                    style={styles.inputText}
-                    placeholder="Password..."
-                    placeholderTextColor="#003f5c"
+                    style={styles.input}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#7C808D"
+                    selectionColor="#3662AA"
+                    secureTextEntry={!passwordIsVisible}
+                    onChangeText={setPassword}
                     value={password}
-                    onChangeText={text => setPassword(text)}
                 />
+                <TouchableOpacity
+                    style={styles.passwordVisibleButton}
+                    onPress={() => setPasswordIsVisible(!passwordIsVisible)}
+                >
+                    <Feather
+                        name={passwordIsVisible ? "eye" : "eye-off"}
+                        size={20}
+                        color="#7C808D"
+                    />
+                </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-                <Text style={styles.loginText}>LOGIN</Text>
+            <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+                <Text style={styles.signupText}>Didn't sign up yet?</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.signupBtn} onPress={handleSignUp}>
-                <Text style={styles.loginText}>SIGN UP</Text>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.loginButtonText}>Log in</Text>
             </TouchableOpacity>
-            <Text style={styles.signupText}>Didn't sign up yet?</Text>
         </View>
     );
 };
@@ -74,56 +89,68 @@ const styles = StyleSheet.create({
         height: 100,
         marginBottom: 20,
     },
-    emailSvg: {
-        position: absolute,
-        top: '16px',
-        right: '16px',
-        width: '20px',
-        height: '20px',
-    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
     },
-    inputView: {
-        width: '80%',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 25,
-        height: 50,
+    inputContainer: {
+        flexDirection: "row",
+        width: "80%",
+        alignItems: "center",
         marginBottom: 20,
-        justifyContent: 'center',
-        padding: 20,
-    },
-    inputText: {
         height: 50,
-        color: 'black',
+        borderColor: 'gray',
+        borderRadius: 12,
+        borderWidth: 1,
+        marginVertical: 10,
+        paddingHorizontal: 10,
     },
-    loginBtn: {
+    icon: {
+        marginRight: 15,
+    },
+    input: {
+        borderBottomWidth: 1.5,
+        flex: 1,
+        // paddingBottom: 10,
+        borderBottomColor: "#eee",
+        fontSize: 16,
+        borderBottomWidth: 0, // Set to 0 to remove the underline
+
+    },
+    // input: {
+    //     width: '80%',
+    //     height: 40,
+    //     borderColor: 'gray',
+    //     borderRadius: 12,
+    //     borderWidth: 1,
+    //     marginVertical: 10,
+    //     paddingHorizontal: 10,
+    // },
+    passwordVisibleButton: {
+        position: "absolute",
+        right: 10,
+    },
+    loginButton: {
+        backgroundColor: '#f7706d',
         width: '80%',
-        backgroundColor: '#fe9836',
-        borderRadius: 25,
-        height: 50,
         alignItems: 'center',
-        justifyContent: 'center',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 12,
         marginTop: 20,
-        marginBottom: 10,
     },
-    signupBtn: {
+    loginButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    signupButton: {
+        alignItems: 'flex-end',
         width: '80%',
-        backgroundColor: '#003f5c',
-        borderRadius: 25,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
-    loginText: {
-        color: 'white',
     },
     signupText: {
-        marginTop: 20,
-        color: 'gray',
+        marginTop: 12,
+        color: '#C70E0AFF',
     },
 });
 
