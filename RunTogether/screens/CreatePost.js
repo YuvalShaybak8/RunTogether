@@ -1,20 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Feather } from "@expo/vector-icons"
+import * as ImagePicker from 'expo-image-picker';
+
 
 const CreatePost = () => {
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
+    const [image, setImage] = useState(null);
+
+    useEffect(() => {
+        console.log('image', image)
+    }, [image])
 
     const handlePostPress = () => {
         console.log('Description:', description);
         console.log('Location:', location);
+        console.log('Image:', image);
     };
 
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
     };
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log('result: ', result.assets[0].uri);
+
+        if (!result.cancelled) {
+            setImage(result.assets[0].uri);
+        }
+    };
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
 
@@ -23,9 +45,9 @@ const CreatePost = () => {
                     <Text style={styles.headerText}>Post</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    <Image source={require('../assets/logo.png')} style={styles.image} />
+                    {image ? <Image source={{ uri: image }} style={styles.image} /> : <Image source={require('../assets/logo.png')} style={styles.image} />}
                 </View>
-                <TouchableOpacity style={styles.uploadButton} onPress={handlePostPress}>
+                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                     <Text style={styles.uploadText}>Upload your photo</Text>
                 </TouchableOpacity>
                 <Text style={styles.label}>Description</Text>
