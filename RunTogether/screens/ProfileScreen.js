@@ -13,14 +13,14 @@ const ProfileScreen = () => {
             <View style={styles.container}>
                 <View style={styles.profileContainer}>
                     <View style={styles.profileImageContainer}>
-                        <Image source={require('../assets/logo.png')} style={styles.profileImage} />
+                        <Image source={require('../assets/John Bol.jpg')} style={styles.profileImage} />
                         <View style={styles.editIconContainer}>
                             <View>
                                 <Feather name="edit-3" size={16} color="white" />
                             </View>
                         </View>
                     </View>
-                    <Text style={styles.name}>Jena Jackson</Text>
+                    <Text style={styles.name}>Jack Bol</Text>
                     <View style={styles.inputEditContainer}>
                         <View style={styles.inputContainer}>
                             <View style={styles.icon}>
@@ -28,7 +28,7 @@ const ProfileScreen = () => {
                             </View>
                             <TextInput
                                 style={styles.input}
-                                placeholder="Jane8@gmail.com"
+                                placeholder="Jack8@gmail.com"
                                 keyboardType="email-address"
                                 placeholderTextColor="#7C808D"
                                 selectionColor="#3662AA"
@@ -108,6 +108,8 @@ const styles = StyleSheet.create({
         marginTop: 32,
     },
     profileImageContainer: {
+        justifyContent: 'center', 
+        alignItems: 'center', 
         position: 'relative',
     },
     profileImage: {
