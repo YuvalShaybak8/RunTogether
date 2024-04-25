@@ -108,6 +108,8 @@ const styles = StyleSheet.create({
         marginTop: 32,
     },
     profileImageContainer: {
+        justifyContent: 'center', 
+        alignItems: 'center', 
         position: 'relative',
     },
     profileImage: {

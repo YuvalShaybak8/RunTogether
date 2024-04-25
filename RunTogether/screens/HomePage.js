@@ -4,7 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Button } from 'react-native-elements';
-import NavigationBar from './NavigationBar';
+import { Feather } from "@expo/vector-icons"
 
 const HomePage = ({ navigation }) => {
     const [postText, setPostText] = useState('');
@@ -17,9 +17,14 @@ const HomePage = ({ navigation }) => {
     const [posts, setPosts] = useState([]);
     const [coordinates, setCoordinates] = useState(null);
     const googlePlacesAutocompleteRef = useRef(null);
+    const [showMenu, setShowMenu] = useState(false);
 
     // Check userInterfaceStyle from app.json
     const isAutomaticInterfaceStyle = __DEV__ ? true : Constants.manifest.expo.userInterfaceStyle === 'automatic';
+
+    const toggleMenu = () => {
+        setShowMenu(!showMenu);
+    };
 
     const handlePost = () => {
         if (motivateVisible && postText.length === 0) {
@@ -84,8 +89,6 @@ const HomePage = ({ navigation }) => {
     }
     return (
         <View style={styles.container}>
-            {/* ... */}
-            <NavigationBar navigation={navigation} />
             <>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => { setLetsRunVisible(!letsRunVisible); setMotivateVisible(false) }} style={styles.button}>
@@ -208,13 +211,38 @@ const HomePage = ({ navigation }) => {
                         </View>
                     ))}
                 </ScrollView>
+
+                {showMenu && (
+                    <View style={styles.menuContainer}>
+                        <TouchableOpacity style={styles.menuAction}>
+                            <Text style={styles.menuActionText}>Log Out</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.menuAction}>
+                            <Text style={styles.menuActionText}>My Posts</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={goToProfileScreen} style={styles.menuAction}>
+                            <Text style={styles.menuActionText}>My Profile</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </>
-            <TouchableOpacity onPress={goToPostScreen}>
-                <Text >Go to create post screen</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={goToProfileScreen}>
-                <Text >Go to profile screen</Text>
-            </TouchableOpacity>
+            <View style={styles.bottomNavigation}>
+                    <TouchableOpacity>
+                        <View style={styles.icon}>
+                            <Feather name="home" size={22} color="#F7706EFF" text/>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={goToPostScreen}>
+                        <View style={styles.icon}>
+                            <Feather name="plus-circle" size={32} color="#F7706EFF" />
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={toggleMenu}>
+                        <View style={styles.icon}>
+                            <Feather name="menu" size={22} color="#F7706EFF" />
+                        </View>
+                    </TouchableOpacity>
+            </View>
         </View>
     );
 
@@ -341,6 +369,37 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 10,
         padding: 20,
+    },
+    bottomNavigation: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        paddingVertical: 16,
+        paddingHorizontal: 16,
+    },
+    menuContainer: {
+        position: 'absolute',
+        bottom: 60,
+        right: 16,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    menuAction: {
+        padding: 16,
+    },
+    menuActionText: {
+        fontSize: 16,
     },
 });
 
