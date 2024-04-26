@@ -1,6 +1,6 @@
-import postModel from '../models/postModel.js';
+const postModel = require('../models/postModel.js');
 
-export async function createPost(req, res) {
+async function createPost(req, res) {
     try {
         const { image, description, location } = req.body;
         const newPost = new postModel({
@@ -16,8 +16,7 @@ export async function createPost(req, res) {
     }
 }
 
-// Get all posts
-export async function getAllPosts(req, res) {
+async function getAllPosts(req, res) {
     try {
         const posts = await postModel.find();
         res.status(200).json(posts);
@@ -26,8 +25,7 @@ export async function getAllPosts(req, res) {
     }
 }
 
-// Get posts by user
-export async function getPostsByUser(req, res) {
+async function getPostsByUser(req, res) {
     try {
         const posts = await postModel.find({ user: req.params.userId });
         res.status(200).json(posts);
@@ -36,8 +34,7 @@ export async function getPostsByUser(req, res) {
     }
 }
 
-// Update a post
-export async function updatePost(req, res) {
+async function updatePost(req, res) {
     try {
         const { id } = req.params;
         const { image, description, location } = req.body;
@@ -48,8 +45,7 @@ export async function updatePost(req, res) {
     }
 }
 
-// Delete a post
-export async function deletePost(req, res) {
+async function deletePost(req, res) {
     try {
         const { id } = req.params;
         await postModel.findByIdAndDelete(id);
@@ -59,7 +55,7 @@ export async function deletePost(req, res) {
     }
 }
 
-export default {
+module.exports = {
     createPost,
     getAllPosts,
     getPostsByUser,

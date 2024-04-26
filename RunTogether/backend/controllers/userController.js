@@ -1,26 +1,32 @@
-import UserModel from '../models/userModel.js';
+const UserModel = require('../models/userModel.js');
+const bcrypt = require('bcrypt'); // Import for password hashing
 
 // Create a new user
-export async function createUser(req, res) {
+async function createUser(req, res) {
     try {
         const { username, email, password, image } = req.body;
-        // const newUser = new UserModel({
-        //     username,
-        //     email,
-        //     password,
-        //     image
-        // });
-        // console.log(newUser)
-        // const savedUser = await newUser.save();
-        const newUser = await UserModel.create({ username, email, password, image })
-        res.status(201).json(newUser);
+
+        // Hash the password before saving
+        console.log('trying to create user')
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = new UserModel({ username, email, password: hashedPassword, image });
+        const savedUser = await newUser.save();
+        console.log('saving user')
+        res.status(201).json({ message: 'Signup successful!', user: savedUser });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        let errorMessage = 'Error signing up';
+        if (error.code === 11000) { // Handle duplicate email/username errors
+            errorMessage = 'Username or email already exists';
+        }
+        res.status(500).json({ message: errorMessage });
     }
 }
 
 // Get user by ID
-export async function getUserById(req, res) {
+async function getUserById(req, res) {
     try {
         const { userId } = req.params;
         const user = await UserModel.findById(userId);
@@ -34,7 +40,7 @@ export async function getUserById(req, res) {
 }
 
 // Update user profile
-export async function updateUserProfile(req, res) {
+async function updateUserProfile(req, res) {
     try {
         const { userId } = req.params;
         const { username, email, image } = req.body;
@@ -46,7 +52,7 @@ export async function updateUserProfile(req, res) {
 }
 
 // Delete user
-export async function deleteUser(req, res) {
+async function deleteUser(req, res) {
     try {
         const { userId } = req.params;
         await UserModel.findByIdAndDelete(userId);
@@ -56,7 +62,7 @@ export async function deleteUser(req, res) {
     }
 }
 
-export default {
+module.exports = {
     createUser,
     getUserById,
     updateUserProfile,

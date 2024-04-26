@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Feather } from "@expo/vector-icons"
-import axios from 'axios'; // Import Axios for making HTTP requests
+import axios from 'axios';
 
 const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -11,18 +11,16 @@ const SignUpScreen = ({ navigation }) => {
 
     const handleSignUp = async () => {
         try {
-            const response = await axios.post('YOUR_BACKEND_API_URL/signup', {
-                email,
-                password,
-                username
-            });
-            console.log('Sign-up successful:', response.data);
-            navigation.goBack(); // Redirect to login screen after sign-up
+            const response = await axios.post('https://localhost:5000/user');
+            console.log('response', response)
+            // console.log('Sign-up successful:', response.data);
+            navigation.goBack();
         } catch (error) {
             console.error('Error signing up:', error.message);
             // Handle sign-up error, e.g., display an error message to the user
         }
     };
+
 
     const handleLoginRedirect = () => {
         navigation.goBack();
