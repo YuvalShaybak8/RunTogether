@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "extra": {
+      "IP": "192.168.3.5"
+    },
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",

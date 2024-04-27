@@ -11,9 +11,10 @@ const { createUser } = require('./controllers/userController.js');
 env.config();
 const app = express();
 const PORT = process.env.PORT || 3030;
+const MongoDB = process.env.MongoDB
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://taloreff:UjaEKiqzPivYp6CD@cluster0.6hrapzc.mongodb.net/RunTogether')
+mongoose.connect(MongoDB)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
