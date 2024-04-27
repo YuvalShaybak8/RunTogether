@@ -8,6 +8,7 @@ const {
 
 const router = express.Router();
 
+
 // Create a new user
 router.post('/', createUser);
 
@@ -20,4 +21,5 @@ router.put('/:userId', updateUserProfile);
 // Delete user
 router.delete('/:userId', deleteUser);
 
+//export apiClient aswell
 module.exports = router;

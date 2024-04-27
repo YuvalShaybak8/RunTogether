@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3030;
 
 // Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/RunTogether')
+mongoose.connect('mongodb+srv://taloreff:UjaEKiqzPivYp6CD@cluster0.6hrapzc.mongodb.net/RunTogether')
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -32,10 +32,8 @@ app.use(cors(corsOptions));
 
 
 // Routes
-// app.use("/post", postRoutes); // Assuming you have post routes
-// app.use("/user", userRoutes);
-
-app.post("/user", createUser)
+//app.use("/post", postRoutes); // Assuming you have post routes
+app.use("/user", userRoutes);
 
 app.get("/", (req, res) => { res.send("hello!") })
 // Start the server
