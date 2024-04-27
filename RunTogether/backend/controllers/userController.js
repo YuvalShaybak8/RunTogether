@@ -1,19 +1,18 @@
 const UserModel = require('../models/userModel.js');
 const bcrypt = require('bcrypt'); // Import for password hashing
+const avatarImg = '../assets/avatar.jpg';
 
 // Create a new user
 async function createUser(req, res) {
     try {
-        const { username, email, password, image } = req.body;
+        const { username, email, password } = req.body;
 
         // Hash the password before saving
-        console.log('trying to create user')
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
+        image = avatarImg;
         const newUser = new UserModel({ username, email, password: hashedPassword, image });
         const savedUser = await newUser.save();
-        console.log('saving user')
         res.status(201).json({ message: 'Signup successful!', user: savedUser });
     } catch (error) {
         console.error(error);

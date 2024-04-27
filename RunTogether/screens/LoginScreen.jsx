@@ -8,8 +8,11 @@ const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
     const handleLogin = () => {
-        if (email === '' && password === '') {
-            navigation.navigate('Home Page');
+        // Check if the email and password are in the database
+        if (email === ' [email protected]' && password === 'password') {
+            console.log('Login successful');
+            navigation.navigate('Home');
+
         } else {
             console.warn('Login failed. Invalid email or password');
             setEmail('');

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 import axios from 'axios';
+import client from '../backend/api/client.js';
 
 const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -11,7 +12,6 @@ const SignUpScreen = ({ navigation }) => {
 
     const handleSignUp = async () => {
         try {
-            const client = axios.create({ baseURL: 'http://10.100.102.5:5000' });
             const response = await client.post('/user', { username, email, password })
             console.log('Sign-up successful:', response.data);
             navigation.goBack();
