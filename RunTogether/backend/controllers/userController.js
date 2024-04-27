@@ -24,17 +24,44 @@ async function createUser(req, res) {
     }
 }
 
-// Get user by ID
-async function getUserById(req, res) {
+// Get user by Email
+async function getUserByEmail(req, res) {
     try {
-        const { userId } = req.params;
-        const user = await UserModel.findById(userId);
+        const { email } = req.params;
+        console.log('email', email)
+        const user = await UserModel.findById(email);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+}
+
+async function login(req, res) {
+    console.log(req.body)
+    try {
+        const { email, password } = req.body;
+        console.log(email + '   ' + password)
+
+        const user = await UserModel.findOne({ email }); // Find user by email
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password); // Compare hashed passwords
+
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Successful login logic (generate token, etc.)
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error); // Log the error
+        res.status(500).json({ message: 'Error logging in' });
     }
 }
 
@@ -63,7 +90,8 @@ async function deleteUser(req, res) {
 
 module.exports = {
     createUser,
-    getUserById,
+    getUserByEmail,
     updateUserProfile,
-    deleteUser
+    deleteUser,
+    login
 };

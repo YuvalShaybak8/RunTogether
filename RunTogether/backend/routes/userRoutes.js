@@ -1,7 +1,8 @@
 const express = require('express');
 const {
     createUser,
-    getUserById,
+    login,
+    getUserByEmail,
     updateUserProfile,
     deleteUser
 } = require('../controllers/userController.js');
@@ -13,13 +14,13 @@ const router = express.Router();
 router.post('/', createUser);
 
 // Get user by ID
-router.get('/:userId', getUserById);
+router.post('/login', login);
 
 // Update user profile
-router.put('/:userId', updateUserProfile);
+router.put('/:email', updateUserProfile);
 
 // Delete user
-router.delete('/:userId', deleteUser);
+router.delete('/:email', deleteUser);
 
 //export apiClient aswell
 module.exports = router;

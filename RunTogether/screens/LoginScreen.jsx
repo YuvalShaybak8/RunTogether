@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Image } from 'react-native';
 import { Feather } from "@expo/vector-icons"
+import client from '../backend/api/client.js';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordIsVisible, setPasswordIsVisible] = useState(false)
-    const handleLogin = () => {
-        // Check if the email and password are in the database
-        if (email === ' [email protected]' && password === 'password') {
-            console.log('Login successful');
-            navigation.navigate('Home');
-
-        } else {
-            console.warn('Login failed. Invalid email or password');
-            setEmail('');
-            setPassword('');
+    const handleLogin = async () => {
+        try {
+            const response = await client.post('/user/login', { email, password });
+            console.log('Login successful:', response.data);
+            navigation.navigate('Home Page')
+            // Handle successful login, e.g., store user data in local storage or redirect to another page
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.warn('Login failed. Invalid email or password');
+            } else {
+                console.error('Error logging in:', error.message);
+            }
         }
     };
 
