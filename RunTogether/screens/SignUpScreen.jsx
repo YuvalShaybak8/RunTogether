@@ -51,7 +51,7 @@ const SignUpScreen = ({ navigation }) => {
                                 <Feather name="user" size={22} color="black" />
                             </View>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { textAlign: 'left' }]}
                                 placeholder="Enter your user name"
                                 placeholderTextColor="#7C808D"
                                 selectionColor="#3662AA"
@@ -64,13 +64,15 @@ const SignUpScreen = ({ navigation }) => {
                                 <Feather name="mail" size={22} color="black" />
                             </View>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { textAlign: 'left' }]}
                                 placeholder="Enter your email address"
                                 keyboardType="email-address"
                                 placeholderTextColor="#7C808D"
                                 selectionColor="#3662AA"
                                 onChangeText={setEmail}
                                 value={email}
+                                autoCorrect={false} // Disable auto-correction
+                                autoCapitalize="none" // Disable auto-capitalization
                             />
                         </View>
                         <View style={styles.inputContainer}>
@@ -78,7 +80,7 @@ const SignUpScreen = ({ navigation }) => {
                                 <Feather name="lock" size={22} color="black" />
                             </View>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { textAlign: 'left' }]}
                                 placeholder="Enter your password"
                                 placeholderTextColor="#7C808D"
                                 selectionColor="#3662AA"

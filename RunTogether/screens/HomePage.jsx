@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, Text, Keyboard, TouchableOpacity } from 'react-native';
+import React, { useState, useRef , useEffect } from 'react';
+import { StyleSheet, View, TextInput, ScrollView, Text, Keyboard, TouchableOpacity ,TouchableWithoutFeedback, PanResponder , Animated  } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { Button } from 'react-native-elements';
 import { Feather } from "@expo/vector-icons"
+import { useNavigation } from '@react-navigation/native';
 
 const HomePage = ({ navigation }) => {
     const [postText, setPostText] = useState('');
@@ -18,13 +18,50 @@ const HomePage = ({ navigation }) => {
     const [coordinates, setCoordinates] = useState(null);
     const googlePlacesAutocompleteRef = useRef(null);
     const [showMenu, setShowMenu] = useState(false);
+    const [menuPosition, setMenuPosition] = useState(new Animated.Value(1));
+
+    // Navigation
+    const navigationL = useNavigation();
 
     // Check userInterfaceStyle from app.json
     const isAutomaticInterfaceStyle = __DEV__ ? true : Constants.manifest.expo.userInterfaceStyle === 'automatic';
 
+    const handleLogout = async () => {
+        try {
+            console.log('Logout successful'); // Log a message indicating successful logout
+            navigation.navigate('Login'); 
+        } catch (error) {
+            console.error('Error logging out:', error.message);
+        }
+    };
+
+    useEffect(() => {
+        Animated.timing(menuPosition, {
+            toValue: showMenu ? 0 : 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [showMenu]);
+
     const toggleMenu = () => {
         setShowMenu(!showMenu);
     };
+
+    const handlePressOutsideMenu = () => {
+        if (showMenu) {
+            setShowMenu(false);
+        }
+    };
+
+    const handlePanResponderGrant = (e, gestureState) => {
+        e.stopPropagation();
+    };
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onPanResponderGrant: handlePanResponderGrant,
+        })
+    ).current;
 
     const handlePost = () => {
         if (motivateVisible && postText.length === 0) {
@@ -88,145 +125,159 @@ const HomePage = ({ navigation }) => {
         navigation.navigate('Profile Details');
     }
     return (
-        <View style={styles.container}>
-            <>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={() => { setLetsRunVisible(!letsRunVisible); setMotivateVisible(false) }} style={styles.button}>
-                        <Text style={styles.buttonText}>Let's Run</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => { setMotivateVisible(!motivateVisible); setLetsRunVisible(false) }} style={styles.button}>
-                        <Text style={styles.buttonText}>Motivate</Text>
-                    </TouchableOpacity>
-                </View>
-                {(letsRunVisible || motivateVisible) && (
-                    <View style={styles.contentContainer}>
-                        <View style={styles.postInputContainer}>
-                            {letsRunVisible && (
-                                <>
-                                    <TextInput
-                                        style={[styles.input, isAutomaticInterfaceStyle && { color: '#000', fontSize: 16 }]}
-                                        placeholder="Run Length (e.g. 5)"
-                                        onChangeText={setRunLength}
-                                        value={runLength}
-                                        keyboardType="numeric"
-                                        placeholderTextColor={isAutomaticInterfaceStyle ? '#000' : '#5d5d5d'}
-                                        onEndEditing={() => {
-                                            let numericRunLength = parseFloat(runLength);
-                                            if (isNaN(numericRunLength) || numericRunLength < 0.1 || numericRunLength > 40) {
-                                                console.warn("Please enter a number between 0.1 and 40.");
-                                                setRunLength('');
-                                                Keyboard.dismiss()
-                                            }
+        <TouchableWithoutFeedback onPress={handlePressOutsideMenu}>
+            <View style={styles.container}>
+                <>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity onPress={() => { setLetsRunVisible(!letsRunVisible); setMotivateVisible(false) }} style={styles.button}>
+                            <Text style={styles.buttonText}>Let's Run</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => { setMotivateVisible(!motivateVisible); setLetsRunVisible(false) }} style={styles.button}>
+                            <Text style={styles.buttonText}>Motivate</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {(letsRunVisible || motivateVisible) && (
+                        <View style={styles.contentContainer}>
+                            <View style={styles.postInputContainer}>
+                                {letsRunVisible && (
+                                    <>
+                                        <TextInput
+                                            style={[styles.input, isAutomaticInterfaceStyle && { color: '#000', fontSize: 16 }]}
+                                            placeholder="Run Length (e.g. 5)"
+                                            onChangeText={setRunLength}
+                                            value={runLength}
+                                            keyboardType="numeric"
+                                            placeholderTextColor={isAutomaticInterfaceStyle ? '#000' : '#5d5d5d'}
+                                            onEndEditing={() => {
+                                                let numericRunLength = parseFloat(runLength);
+                                                if (isNaN(numericRunLength) || numericRunLength < 0.1 || numericRunLength > 40) {
+                                                    console.warn("Please enter a number between 0.1 and 40.");
+                                                    setRunLength('');
+                                                    Keyboard.dismiss()
+                                                }
+                                            }}
+                                        />
+    
+                                        <TouchableOpacity onPress={toggleTimePicker} style={styles.input}>
+                                            <Text>{selectedTime ? selectedTime.toLocaleTimeString() : "Select Time"}</Text>
+                                        </TouchableOpacity>
+                                        <DateTimePickerModal
+                                            isVisible={timePickerVisible}
+                                            mode="time"
+                                            onConfirm={handleTimeConfirm}
+                                            onCancel={toggleTimePicker}
+                                        />
+                                    </>
+                                )}
+                                {letsRunVisible && (
+                                    <GooglePlacesAutocomplete
+                                        ref={googlePlacesAutocompleteRef}
+                                        placeholder='Pick a location...'
+                                        textInputProps={{
+                                            placeholderTextColor: isAutomaticInterfaceStyle ? '#000' : '#5d5d5d',
+                                            returnKeyType: "search"
+                                        }}
+                                        onPress={handlePlaceSelect}
+                                        query={{
+                                            key: 'AIzaSyA1VjNmmzJfMnMLd0Ta61hrZs7dy0sFArk',
+                                            language: 'en',
+                                        }}
+                                        nearbyPlacesAPI='GooglePlacesSearch'
+                                        debounce={300}
+                                        styles={{
+    
+                                            container: styles.autocompleteContainer,
+                                            textInputContainer: {
+                                                backgroundColor: 'rgba(0,0,0,0)',
+                                                borderTopWidth: 0,
+                                                borderBottomWidth: 0,
+                                            },
+                                            textInput: {
+                                                marginLeft: 0,
+                                                marginRight: 0,
+                                                height: 38,
+                                                color: '#5d5d5d',
+                                                fontSize: 16,
+                                            },
+                                            predefinedPlacesDescription: {
+                                                color: '#1faadb',
+                                            },
                                         }}
                                     />
-
-                                    <TouchableOpacity onPress={toggleTimePicker} style={styles.input}>
-                                        <Text>{selectedTime ? selectedTime.toLocaleTimeString() : "Select Time"}</Text>
-                                    </TouchableOpacity>
-                                    <DateTimePickerModal
-                                        isVisible={timePickerVisible}
-                                        mode="time"
-                                        onConfirm={handleTimeConfirm}
-                                        onCancel={toggleTimePicker}
+                                )}
+    
+                                {motivateVisible && (
+                                    <TextInput
+                                        style={styles.postInput}
+                                        placeholder="Write a motivating post..."
+                                        onChangeText={setPostText}
+                                        value={postText}
                                     />
-                                </>
-                            )}
-                            {letsRunVisible && (
-                                <GooglePlacesAutocomplete
-                                    ref={googlePlacesAutocompleteRef}
-                                    placeholder='Pick a location...'
-                                    textInputProps={{
-                                        placeholderTextColor: isAutomaticInterfaceStyle ? '#000' : '#5d5d5d',
-                                        returnKeyType: "search"
-                                    }}
-                                    onPress={handlePlaceSelect}
-                                    query={{
-                                        key: 'AIzaSyA1VjNmmzJfMnMLd0Ta61hrZs7dy0sFArk',
-                                        language: 'en',
-                                    }}
-                                    nearbyPlacesAPI='GooglePlacesSearch'
-                                    debounce={300}
-                                    styles={{
-
-                                        container: styles.autocompleteContainer,
-                                        textInputContainer: {
-                                            backgroundColor: 'rgba(0,0,0,0)',
-                                            borderTopWidth: 0,
-                                            borderBottomWidth: 0,
-                                        },
-                                        textInput: {
-                                            marginLeft: 0,
-                                            marginRight: 0,
-                                            height: 38,
-                                            color: '#5d5d5d',
-                                            fontSize: 16,
-                                        },
-                                        predefinedPlacesDescription: {
-                                            color: '#1faadb',
-                                        },
-                                    }}
-                                />
-                            )}
-
-                            {motivateVisible && (
-                                <TextInput
-                                    style={styles.postInput}
-                                    placeholder="Write a motivating post..."
-                                    onChangeText={setPostText}
-                                    value={postText}
-                                />
-                            )}
-                            <TouchableOpacity onPress={handlePost} style={styles.postBtn}>
-                                <Text style={styles.postBtnText}>Post</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
-                <ScrollView style={styles.postsContainer}>
-                    {posts?.map(post => (
-                        <View key={post.runLength} style={styles.postContainer}>
-                            <View style={styles.postHeader}>
-                                <Text style={styles.postHeaderText}>{post.runLength}KM - {post.location}</Text>
+                                )}
+                                <TouchableOpacity onPress={handlePost} style={styles.postBtn}>
+                                    <Text style={styles.postBtnText}>Post</Text>
+                                </TouchableOpacity>
                             </View>
-                            <MapView
-                                style={styles.map}
-                                initialRegion={{
-                                    latitude: post.coordinates.latitude,
-                                    longitude: post.coordinates.longitude,
-                                    latitudeDelta: 0.0922,
-                                    longitudeDelta: 0.0421,
-                                }}
-                                scrollEnabled={false}
-                                zoomEnabled={true}
-                            >
-                                <Marker
-                                    coordinate={{
+                        </View>
+                    )}
+                    <ScrollView style={styles.postsContainer}>
+                        {posts?.map(post => (
+                            <View key={post.runLength} style={styles.postContainer}>
+                                <View style={styles.postHeader}>
+                                    <Text style={styles.postHeaderText}>{post.runLength}KM - {post.location}</Text>
+                                </View>
+                                <MapView
+                                    style={styles.map}
+                                    initialRegion={{
                                         latitude: post.coordinates.latitude,
                                         longitude: post.coordinates.longitude,
+                                        latitudeDelta: 0.0922,
+                                        longitudeDelta: 0.0421,
                                     }}
-                                    title="Marker Title"
-                                    description="Marker Description"
-                                />
-                            </MapView>
-                        </View>
-                    ))}
-                </ScrollView>
-
-                {showMenu && (
-                    <View style={styles.menuContainer}>
-                        <TouchableOpacity style={styles.menuAction}>
-                            <Text style={styles.menuActionText}>Log Out</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.menuAction}>
-                            <Text style={styles.menuActionText}>My Posts</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={goToProfileScreen} style={styles.menuAction}>
-                            <Text style={styles.menuActionText}>My Profile</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </>
-            <View style={styles.bottomNavigation}>
+                                    scrollEnabled={false}
+                                    zoomEnabled={true}
+                                >
+                                    <Marker
+                                        coordinate={{
+                                            latitude: post.coordinates.latitude,
+                                            longitude: post.coordinates.longitude,
+                                        }}
+                                        title="Marker Title"
+                                        description="Marker Description"
+                                    />
+                                </MapView>
+                            </View>
+                        ))}
+                    </ScrollView>
+    
+                    {showMenu && (
+                        <Animated.View style={[styles.menuContainer, { transform: [{ translateY: menuPosition }] }]}>
+                            <View style={styles.menuHeader}>
+                                <Text style={styles.menuHeaderText}>Menu Actions</Text>
+                                <View style={styles.menuHeaderLine} />
+                            </View>
+                            <TouchableOpacity onPress={handleLogout} style={styles.menuAction}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Feather name="log-out" size={18} color="#F7706EFF" style={{ marginRight: 8 }} />
+                                    <Text style={styles.menuActionText}>Log Out</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.menuAction}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Feather name="file-text" size={18} color="#F7706EFF" style={{ marginRight: 8 }} />
+                                    <Text style={styles.menuActionText}>My Posts</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={goToProfileScreen} style={styles.menuAction}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Feather name="user" size={18} color="#F7706EFF" style={{ marginRight: 8 }} />
+                                    <Text style={styles.menuActionText}>My Profile</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </Animated.View>
+                    )}
+                </>
+                <View style={styles.bottomNavigation}>
                     <TouchableOpacity>
                         <View style={styles.icon}>
                             <Feather name="home" size={22} color="#F7706EFF" text/>
@@ -242,8 +293,9 @@ const HomePage = ({ navigation }) => {
                             <Feather name="menu" size={22} color="#F7706EFF" />
                         </View>
                     </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </TouchableWithoutFeedback>
     );
 
 };
@@ -377,19 +429,38 @@ const styles = StyleSheet.create({
         right: 0,
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingVertical: 16,
-        paddingHorizontal: 16,
-    },
-    menuContainer: {
-        position: 'absolute',
-        bottom: 60,
-        right: 16,
-        backgroundColor: '#fff',
-        borderRadius: 8,
+        paddingVertical: 16, // Increase padding
+        paddingHorizontal: 16, // Increase padding
+        backgroundColor: '#fff', // Add background color
+        borderTopLeftRadius: 10, // Add border radius to the top
+        borderTopRightRadius: 10, // Add border radius to the top
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: -4, // Adjust shadow offset
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    icon: {
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: 12,
+        borderRadius: 10, // Add border radius to the icons  
+    },
+    menuContainer: {
+        position: 'absolute',
+        bottom: 88,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: -4,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
@@ -397,9 +468,30 @@ const styles = StyleSheet.create({
     },
     menuAction: {
         padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between', // Add this line
     },
     menuActionText: {
-        fontSize: 16,
+        fontSize: 19,
+        flex: 1, // Add this line
+        marginLeft: 10, // Add some spacing between icon and text
+    },
+    menuHeader: {
+        backgroundColor: '#F7706EFF',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+    },
+    menuHeaderText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 20,
+        textAlign: 'center',
+        backgroundColor: '#F7706EFF',
+        paddingVertical: 7,
+        paddingHorizontal: 13,
     },
 });
 
