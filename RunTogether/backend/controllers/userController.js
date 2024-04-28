@@ -8,7 +8,7 @@ const { generateToken } = require('../auth/tokenUtils.js');
 async function createUser(req, res) {
     try {
         const { username, email, password } = req.body;
-
+        console.log('req.body', req.body)
         // Hash the password before saving
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);

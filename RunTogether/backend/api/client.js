@@ -1,2 +1,8 @@
 import axios from 'axios';
-export default axios.create({ baseURL: 'http://10.100.102.5:5000' })
+import Constants from 'expo-constants';
+
+// const { expoConfig } = Constants;
+// const IP = expoConfig.extra.IP;
+// const IP2 = process.env.IP;
+
+export default axios.create({ baseURL: `http://10.100.102.5:5000` });

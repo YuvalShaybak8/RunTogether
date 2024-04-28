@@ -1,7 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Feather } from "@expo/vector-icons"
-import * as ImagePicker from 'expo-image-picker';
+import React, { useEffect, useState } from "react";
+import {
+    View,
+    Text,
+    Image,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    KeyboardAvoidingView,
+    Platform,
+    TouchableWithoutFeedback,
+    Keyboard,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import client from '../backend/api/client.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,6 +20,17 @@ const CreatePost = ({ navigation }) => {
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
     const [image, setImage] = useState(null);
+
+    useEffect(() => {
+        (async () => {
+            if (Platform.OS !== "web") {
+                const { status } = await ImagePicker.requestCameraPermissionsAsync();
+                if (status !== "granted") {
+                    alert("Sorry, we need camera permissions to make this work!");
+                }
+            }
+        })();
+    }, []);
 
     const handlePostPress = async () => {
         try {
@@ -38,26 +60,52 @@ const CreatePost = ({ navigation }) => {
             aspect: [4, 3],
             quality: 1,
         });
+        if (!result.cancelled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
-        console.log('result: ', result.assets[0].uri);
+    const takePhoto = async () => {
+        let result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
 
         if (!result.cancelled) {
             setImage(result.assets[0].uri);
         }
     };
+
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-
-            <KeyboardAvoidingView style={styles.container} behavior="position" keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
+            <KeyboardAvoidingView
+                style={styles.container}
+                behavior="position"
+                keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+            >
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Post</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {image ? <Image source={{ uri: image }} style={styles.image} /> : <Image source={require('../assets/post_img2.jpg')} style={styles.image} />}
+                    {image ? (
+                        <Image source={{ uri: image }} style={styles.image} />
+                    ) : (
+                        <Image
+                            source={require("../assets/post_img2.jpg")}
+                            style={styles.image}
+                        />
+                    )}
                 </View>
-                <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                    <Text style={styles.uploadText}>Upload your photo</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                        <Text style={styles.uploadButtonText}>Upload your photo</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.uploadButton} onPress={takePhoto}>
+                        <Text style={styles.uploadButtonText}>Take a photo</Text>
+                    </TouchableOpacity>
+                </View>
                 <Text style={styles.label}>Description</Text>
                 <TextInput
                     style={[styles.input, styles.textarea]}
@@ -82,79 +130,105 @@ const CreatePost = ({ navigation }) => {
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: "#fff",
         padding: 16,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
         paddingVertical: 8,
     },
     headerText: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     imageContainer: {
-        alignContent: 'center',
+        alignContent: "center",
     },
     image: {
-        width: '80%',
-        height: 300,
-        borderRadius: 40,
-        resizeMode: 'contain',
+        width: "70%",
+        height: 250,
+        borderRadius: 80,
+        resizeMode: "contain",
         marginVertical: 16,
-        alignSelf: 'center',
+        alignSelf: "center",
     },
     uploadText: {
-        alignSelf: 'center',
+        alignSelf: "center",
         fontSize: 16,
-        color: '#F7706EFF',
+        color: "#F7706EFF",
         marginBottom: 16,
     },
     label: {
         fontSize: 16,
-        fontWeight: 'bold',
-        marginTop: 16,
+        fontWeight: "bold",
+        marginVertical: 6,
     },
     textarea: {
         height: 120,
-        textAlignVertical: 'top',
-        backgroundColor: '#F3F3F6FF',
+        textAlignVertical: "top",
+        backgroundColor: "#F3F3F6FF",
         borderWidth: 0,
     },
     input: {
         height: 40,
         borderWidth: 0,
         borderRadius: 10,
-        backgroundColor: '#F3F3F6FF',
+        backgroundColor: "#F3F3F6FF",
         padding: 8,
         marginTop: 8,
     },
     postButton: {
         flexDirection: "row",
-        backgroundColor: '#F7706EFF',
+        backgroundColor: "#F7706EFF",
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 4,
-        alignItems: 'center',
-        justifyContent: 'space-around',
+        alignItems: "center",
+        justifyContent: "space-around",
         marginTop: 16,
-        width: '33%',
-        alignSelf: 'center'
+        width: "33%",
+        alignSelf: "center",
     },
     icon: {
         marginRight: -20,
     },
     postButtonText: {
-        color: '#fff',
+        color: "#fff",
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
+    },
+
+    // New button styles
+    uploadButton: {
+        flexDirection: "row",
+        width: "45%",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 10,
+        height: 40,
+        borderColor: "gray",
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        backgroundColor: "#ff5252",
+        marginRight: 10, // Add marginRight to create space between buttons
+    },
+    uploadButtonText: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#fff",
+    },
+    buttonContainer: {
+        flexDirection: "row", // Arrange items horizontally
+        justifyContent: "space-between", // Space evenly between items
+        marginBottom: 10, // Optional: Add margin bottom to the container
     },
 });
-
 export default CreatePost;
