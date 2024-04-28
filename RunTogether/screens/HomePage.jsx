@@ -31,37 +31,34 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
     ? true
     : Constants.manifest.expo.userInterfaceStyle === "automatic";
 
-  const handlePost = () => {
-    if (motivateVisible && postText.length === 0) {
-      Keyboard.dismiss();
-      return;
+  const handlePost = async () => {
+    try {
+      const newPost = {
+        image: "", // Add image URL here if you have image upload functionality
+        description: postText,
+        location: startingLocation,
+      };
+
+      const response = await fetch("http://localhost:3030/post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer YOUR_ACCESS_TOKEN", // Replace with your JWT token
+        },
+        body: JSON.stringify(newPost),
+      });
+
+      if (response.ok) {
+        const savedPost = await response.json();
+        setPosts([...posts, savedPost]);
+        setPostText("");
+        setStartingLocation("");
+      } else {
+        console.error("Failed to create post");
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
     }
-
-    if (letsRunVisible && runLength.length === 0) {
-      Keyboard.dismiss();
-      return;
-    }
-
-    const newPost = {
-      content: letsRunVisible ? null : postText,
-      location: letsRunVisible ? startingLocation : null,
-      runLength: letsRunVisible ? runLength : null,
-      time: letsRunVisible ? selectedTime : null,
-      coordinates: coordinates
-        ? { latitude: coordinates.latitude, longitude: coordinates.longitude }
-        : null,
-    };
-
-    setPosts([...posts, newPost]);
-    setPostText("");
-    setRunLength("");
-    setSelectedTime(null);
-
-    if (googlePlacesAutocompleteRef.current) {
-      googlePlacesAutocompleteRef.current.clear();
-    }
-    Keyboard.dismiss();
-    console.log(posts);
   };
 
   const handlePlaceSelect = async (details) => {
