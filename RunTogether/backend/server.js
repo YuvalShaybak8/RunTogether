@@ -5,7 +5,6 @@ const postRoutes = require('./routes/postRoutes.js'); // Assuming you have post 
 const bcrypt = require('bcrypt'); // Import for password hashing
 const env = require("dotenv");
 const cors = require('cors');
-const { createUser } = require('./controllers/userController.js');
 
 
 env.config();
@@ -32,7 +31,7 @@ app.use(cors(corsOptions));
 
 
 // Routes
-//app.use("/post", postRoutes); // Assuming you have post routes
+app.use("/post", postRoutes);
 app.use("/user", userRoutes);
 
 app.get("/", (req, res) => { res.send("hello!") })

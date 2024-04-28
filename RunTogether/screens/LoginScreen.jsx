@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Stat
 import { Image } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 import client from '../backend/api/client.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -12,6 +13,8 @@ const LoginScreen = ({ navigation }) => {
         try {
             const response = await client.post('/user/login', { email, password });
             console.log('Login successful:', response.data);
+            const token = response.data.token;
+            await AsyncStorage.setItem('token', token);
             navigation.navigate('Home Page')
             // Handle successful login, e.g., store user data in local storage or redirect to another page
         } catch (error) {

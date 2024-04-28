@@ -1,6 +1,8 @@
 const UserModel = require('../models/userModel.js');
 const bcrypt = require('bcrypt'); // Import for password hashing
 const avatarImg = '../assets/avatar.jpg';
+const jwt = require('jsonwebtoken');
+const { generateToken } = require('../auth/tokenUtils.js');
 
 // Create a new user
 async function createUser(req, res) {
@@ -56,9 +58,9 @@ async function login(req, res) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Successful login logic (generate token, etc.)
-
-        res.status(200).json(user);
+        const token = generateToken(user);
+        console.log('token', token)
+        res.status(200).json({ user, token });
     } catch (error) {
         console.error(error); // Log the error
         res.status(500).json({ message: 'Error logging in' });

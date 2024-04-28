@@ -1,4 +1,6 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
+
 const {
     createPost,
     getAllPosts,
@@ -6,6 +8,7 @@ const {
     updatePost,
     deletePost
 } = require('../controllers/postController.js');
+
 
 const router = express.Router();
 

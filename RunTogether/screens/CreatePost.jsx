@@ -2,22 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 import * as ImagePicker from 'expo-image-picker';
+import client from '../backend/api/client.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const CreatePost = () => {
+const CreatePost = ({ navigation }) => {
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
     const [image, setImage] = useState(null);
 
-    useEffect(() => {
-        console.log('image', image)
-    }, [image])
-
-    const handlePostPress = () => {
-        console.log('Description:', description);
-        console.log('Location:', location);
-        console.log('Image:', image);
+    const handlePostPress = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            console.log('token: ', token)
+            const response = await client.post('/post', { description, location, image }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            console.log('response: ', response.data);
+            navigation.navigate('Home Page');
+        } catch (error) {
+            console.log('error: ', error);
+        }
     };
+
 
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
@@ -74,7 +82,7 @@ const CreatePost = () => {
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
