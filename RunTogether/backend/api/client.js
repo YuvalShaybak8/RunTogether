@@ -5,4 +5,5 @@ import Constants from "expo-constants";
 // const IP = expoConfig.extra.IP;
 // const IP2 = process.env.IP;
 
-export default axios.create({ baseURL: `http://192.168.3.5:5000` });
+// export default axios.create({ baseURL: `http://192.168.3.5:5000` });
+export default axios.create({ baseURL: `http://10.100.102.5:5000` });

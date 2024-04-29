@@ -1,329 +1,164 @@
-import React, { useState, useRef } from "react";
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  ScrollView,
-  Text,
-  Keyboard,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, FlatList, StyleSheet,KeyboardAvoidingView,RefreshControl,SafeAreaView,StatusBar } from 'react-native';
 import BottomNavigation from "../cmps/BottomNavigation";
+import client from '../backend/api/client.js';
+import axios from 'axios';
+import avatarImage from '../assets/avatar.jpg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const HomePage = ({ navigation, handlePressOutsideMenu }) => {
-  const [postText, setPostText] = useState("");
-  const [runLength, setRunLength] = useState("");
-  const [startingLocation, setStartingLocation] = useState("");
-  const [motivateVisible, setMotivateVisible] = useState(false);
-  const [letsRunVisible, setLetsRunVisible] = useState(false);
-  const [timePickerVisible, setTimePickerVisible] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [coordinates, setCoordinates] = useState(null);
-  const googlePlacesAutocompleteRef = useRef(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loggedInUserID, setLoggedInUserID] = useState(null)
 
-  // Check userInterfaceStyle from app.json
-  const isAutomaticInterfaceStyle = __DEV__
-    ? true
-    : Constants.manifest.expo.userInterfaceStyle === "automatic";
+useEffect(() => {
+  fetchData();
+  fetchLoggedInUserProfilePic()
+}, []);
 
-  const handlePost = async () => {
+  const fetchData = async () => {
     try {
-      const newPost = {
-        image: "", // Add image URL here if you have image upload functionality
-        description: postText,
-        location: startingLocation,
-      };
+      const postsResponse = await client.get('/post');
+      const posts = postsResponse.data;
 
-      const response = await fetch("http://localhost:3030/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer YOUR_ACCESS_TOKEN", // Replace with your JWT token
-        },
-        body: JSON.stringify(newPost),
-      });
-
-      if (response.ok) {
-        const savedPost = await response.json();
-        setPosts([...posts, savedPost]);
-        setPostText("");
-        setStartingLocation("");
-      } else {
-        console.error("Failed to create post");
-      }
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
-  const handlePlaceSelect = async (details) => {
-    try {
-      const placeId = details.place_id;
-
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=AIzaSyA1VjNmmzJfMnMLd0Ta61hrZs7dy0sFArk`
+      // Fetch user details for each post
+      const postsWithUserData = await Promise.all(
+        posts.map(async (post) => {
+          const userResponse = await client.get(`/user/${post.user}`);
+          const userData = userResponse.data;
+          const postDate = new Date(userData.createdAt).toLocaleString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+           }); 
+          return { ...post, userProfilePic: userData.image, username: userData.username, postDate };
+        })
       );
-      const placeDetails = await response.json();
-      const { lat, lng } = placeDetails.result.geometry.location;
-      setCoordinates({ latitude: lat, longitude: lng });
-      setStartingLocation(details.description);
+
+      setPosts(postsWithUserData);
     } catch (error) {
-      console.error("Error fetching coordinates:", error);
+      console.error('Error fetching data:', error);
     }
   };
 
-  const handleTimeConfirm = (time) => {
-    setSelectedTime(time);
-    setTimePickerVisible(false);
+  const fetchLoggedInUserProfilePic = async () => {
+    const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
+    const userResponse = await client.get(`/user/${loggedInUserID}`);
+    const {data} = userResponse;
+    const userProfilePic = data.image
+    console.log('userProfilePic', userProfilePic)
+    return userProfilePic
+  }
+
+  const handleRefresh = () => {
+    setIsRefreshing(true); 
+    fetchData(); 
+    setIsRefreshing(false); 
   };
 
-  const toggleTimePicker = () => {
-    setTimePickerVisible((prevTimePickerVisible) => !prevTimePickerVisible);
-  };
+  
+
+  const renderPost = ({ item }) => {
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              setLetsRunVisible(!letsRunVisible);
-              setMotivateVisible(false);
-            }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Let's Run</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setMotivateVisible(!motivateVisible);
-              setLetsRunVisible(false);
-            }}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Motivate</Text>
-          </TouchableOpacity>
-        </View>
-        {(letsRunVisible || motivateVisible) && (
-          <View style={styles.contentContainer}>
-            <View style={styles.postInputContainer}>
-              {letsRunVisible && (
-                <>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Run Length (e.g. 5)"
-                    onChangeText={setRunLength}
-                    value={runLength}
-                    keyboardType="numeric"
-                    onEndEditing={() => {
-                      let numericRunLength = parseFloat(runLength);
-                      if (
-                        isNaN(numericRunLength) ||
-                        numericRunLength < 0.1 ||
-                        numericRunLength > 40
-                      ) {
-                        console.warn(
-                          "Please enter a number between 0.1 and 40."
-                        );
-                        setRunLength("");
-                        Keyboard.dismiss();
-                      }
-                    }}
-                  />
-
-                  <TouchableOpacity
-                    onPress={toggleTimePicker}
-                    style={styles.input}
-                  >
-                    <Text>
-                      {selectedTime
-                        ? selectedTime.toLocaleTimeString()
-                        : "Select Time"}
-                    </Text>
-                  </TouchableOpacity>
-                  <DateTimePickerModal
-                    isVisible={timePickerVisible}
-                    mode="time"
-                    onConfirm={handleTimeConfirm}
-                    onCancel={toggleTimePicker}
-                  />
-                </>
-              )}
-              {letsRunVisible && (
-                <GooglePlacesAutocomplete
-                  ref={googlePlacesAutocompleteRef}
-                  placeholder="Pick a location..."
-                  onPress={handlePlaceSelect}
-                  query={{
-                    key: "YOUR_API_KEY",
-                    language: "en",
-                  }}
-                  nearbyPlacesAPI="GooglePlacesSearch"
-                  debounce={300}
-                  styles={{
-                    container: styles.autocompleteContainer,
-                    textInputContainer: {
-                      backgroundColor: "rgba(0,0,0,0)",
-                      borderTopWidth: 0,
-                      borderBottomWidth: 0,
-                    },
-                    textInput: {
-                      marginLeft: 0,
-                      marginRight: 0,
-                      height: 38,
-                      color: "#5d5d5d",
-                      fontSize: 16,
-                    },
-                    predefinedPlacesDescription: {
-                      color: "#1faadb",
-                    },
-                  }}
-                />
-              )}
-
-              {motivateVisible && (
-                <TextInput
-                  style={styles.postInput}
-                  placeholder="Write a motivating post..."
-                  onChangeText={setPostText}
-                  value={postText}
-                />
-              )}
-              <TouchableOpacity onPress={handlePost} style={styles.postBtn}>
-                <Text style={styles.postBtnText}>Post</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        <ScrollView style={styles.postsContainer}>
-          {posts?.map((post, index) => (
-            <View key={index} style={styles.postContainer}>
-              <View style={styles.postHeader}>
-                <Text style={styles.postHeaderText}>
-                  {post.runLength}KM - {post.location}
-                </Text>
-              </View>
-              <MapView
-                style={styles.map}
-                initialRegion={{
-                  latitude: post.coordinates.latitude,
-                  longitude: post.coordinates.longitude,
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
-                }}
-                scrollEnabled={false}
-                zoomEnabled={true}
-              >
-                <Marker
-                  coordinate={{
-                    latitude: post.coordinates.latitude,
-                    longitude: post.coordinates.longitude,
-                  }}
-                  title="Marker Title"
-                  description="Marker Description"
-                />
-              </MapView>
-            </View>
-          ))}
-        </ScrollView>
-        <BottomNavigation />
+    <View style={styles.postContainer}>
+      <View style={styles.userContainer}>
+{item.userProfilePic ? 
+  <Image source={{ uri: item.userProfilePic }} style={styles.profilePic} /> : 
+  <Image source={avatarImage} style={styles.profilePic} />
+}
+        <Text style={styles.userName}>{item.username}</Text>
+        <Text style={styles.postDate}>{item.postDate}</Text>
       </View>
-    </TouchableWithoutFeedback>
+      <Text style={styles.postDescription}>{item.description}</Text>
+      {item.image && <Image source={{ uri: item.image }} style={styles.postImage} />}
+      {item.location && (
+        <View style={styles.locationContainer}>
+          {item.location && <Text style={styles.locationText}>{item.location}</Text>}
+        </View>
+      )}
+      {item.likes && <Text style={styles.likeCount}>{item.likes} likes</Text>}
+    </View>
+  );
+};
+
+  return (
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <SafeAreaView style={styles.container}>
+                    <StatusBar barStyle="dark-content" />
+      <FlatList
+        data={posts}
+        renderItem={renderPost}
+        keyExtractor={(item) => item._id}
+        refreshControl={ 
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+          />
+        }
+        onScroll={(event) => {
+          const offsetY = event.nativeEvent.contentOffset.y;
+          if (offsetY <= 0) {
+            handleRefresh(); 
+          }
+        }}
+      />
+      <BottomNavigation />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: "dodgerblue",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  postInputContainer: {
-    marginBottom: 20,
-  },
-  postInput: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    padding: 10,
-  },
-  input: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 10,
-  },
-  postsContainer: {
-    flex: 1,
+    backgroundColor: '#fff',
   },
   postContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    marginVertical: 10,
+    paddingHorizontal: 10,
   },
-  postHeader: {
-    backgroundColor: "dodgerblue",
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    padding: 10,
+  userContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
   },
-  postHeaderText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  map: {
-    height: 200,
-  },
-  autocompleteContainer: {
-    width: "100%",
-    zIndex: "999",
-    borderRadius: 10,
-  },
-  postBtn: {
-    backgroundColor: "dodgerblue",
+  profilePic: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 50,
+    marginRight: 10,
   },
-  postBtnText: {
-    color: "#fff",
-    fontSize: 16,
+  userName: {
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  postDate: {
+    color: 'gray',
+  },
+  postDescription: {
+    marginBottom: 10,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    marginBottom: 10,
+  },
+  locationContainer: {
+    marginBottom: 10,
+  },
+  locationText: {
+    marginBottom: 5,
+  },
+  mapImage: {
+    width: '100%',
+    height: 150,
+  },
+  likeCount: {
+    color: 'gray',
   },
 });
 

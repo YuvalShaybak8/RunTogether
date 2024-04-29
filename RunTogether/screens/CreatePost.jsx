@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
     View,
     Text,
@@ -10,16 +10,20 @@ import {
     Platform,
     TouchableWithoutFeedback,
     Keyboard,
+    ScrollView
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Autocomplete } from "../cmps/Autocomplete";
 import * as ImagePicker from "expo-image-picker";
 import client from '../backend/api/client.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const CreatePost = ({ navigation }) => {
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
     const [image, setImage] = useState(null);
+    const googlePlacesAutocompleteRef = useRef(null)
 
     useEffect(() => {
         (async () => {
@@ -35,18 +39,19 @@ const CreatePost = ({ navigation }) => {
     const handlePostPress = async () => {
         try {
             const token = await AsyncStorage.getItem('token');
-            console.log('token: ', token)
-            const response = await client.post('/post', { description, location, image }, {
+
+            const trimmedDescription = description.replace(/\n/g, ' ')
+
+            const response = await client.post('/post', { description: trimmedDescription, location, image }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log('response: ', response.data);
             navigation.navigate('Home Page');
-        } catch (error) {
-            console.log('error: ', error);
+            } catch (error) {
+                console.log('error: ', error);
         }
-    };
+    };  
 
 
     const handleDismissKeyboard = () => {
@@ -88,6 +93,7 @@ const CreatePost = ({ navigation }) => {
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Post</Text>
                 </View>
+                
                 <View style={styles.imageContainer}>
                     {image ? (
                         <Image source={{ uri: image }} style={styles.image} />
@@ -114,19 +120,14 @@ const CreatePost = ({ navigation }) => {
                     onChangeText={setDescription}
                     multiline
                 />
-                <Text style={styles.label}>Location</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your location... (optional)"
-                    value={location}
-                    onChangeText={setLocation}
-                />
+                <Autocomplete location={location} setLocation={setLocation}/>
                 <TouchableOpacity style={styles.postButton} onPress={handlePostPress}>
                     <View style={styles.icon}>
                         <Feather name="send" size={22} color="white" />
                     </View>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
+                
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
@@ -204,8 +205,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
-
-    // New button styles
     uploadButton: {
         flexDirection: "row",
         width: "45%",
@@ -218,7 +217,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: 10,
         backgroundColor: "#ff5252",
-        marginRight: 10, // Add marginRight to create space between buttons
+        marginRight: 10, 
     },
     uploadButtonText: {
         fontSize: 14,
@@ -226,9 +225,14 @@ const styles = StyleSheet.create({
         color: "#fff",
     },
     buttonContainer: {
-        flexDirection: "row", // Arrange items horizontally
-        justifyContent: "space-between", // Space evenly between items
-        marginBottom: 10, // Optional: Add margin bottom to the container
+        flexDirection: "row",
+        justifyContent: "space-between", 
+        marginBottom: 10, 
     },
+    autocompleteContainer: {
+    width: "100%",
+    zIndex: "999",
+    borderRadius: 10,
+  },
 });
 export default CreatePost;

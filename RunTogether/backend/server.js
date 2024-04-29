@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const userRoutes = require('./routes/userRoutes.js');
-const postRoutes = require('./routes/postRoutes.js'); // Assuming you have post routes
+const postRoutes = require('./routes/postRoutes.js');
 const bcrypt = require('bcrypt'); // Import for password hashing
 const env = require("dotenv");
 const cors = require('cors');
@@ -12,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3030;
 const MongoDB = process.env.MongoDB
 
+console.log('MongoDB', MongoDB)
 // Connect to MongoDB
 mongoose.connect(MongoDB)
     .then(() => console.log('MongoDB connected'))

@@ -1,18 +1,41 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
-    TouchableWithoutFeedback,
-    StyleSheet
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    Keyboard,
+    TouchableWithoutFeedback
 } from "react-native";
-
 import BottomNavigation from "../cmps/BottomNavigation";
 
-const MyPostsScreen = ({ navigation, handlePressOutsideMenu }) => {
+const MyPostsScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+
+    const handleInputChange = (text) => {
+        setEmail(text);
+    };
+
+    const handleDismissKeyboard = () => {
+        Keyboard.dismiss();
+    };
+
     return (
-        <TouchableWithoutFeedback onPress={handlePressOutsideMenu}>
+        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
             <View style={styles.container}>
                 <Text style={styles.title}>My posts</Text>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter your email address"
+                        keyboardType="email-address"
+                        placeholderTextColor="#7C808D"
+                        selectionColor="#3662AA"
+                        value={email}
+                        onChangeText={handleInputChange}
+                    />
+                </View>
                 <BottomNavigation />
             </View>
         </TouchableWithoutFeedback>
@@ -22,12 +45,26 @@ const MyPostsScreen = ({ navigation, handlePressOutsideMenu }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 20,
     },
     title: {
         fontSize: 24,
         fontWeight: "bold",
+        marginBottom: 20,
+    },
+    inputContainer: {
+        width: "100%",
+        marginBottom: 20,
+        borderColor: 'gray',
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingHorizontal: 10,
+    },
+    input: {
+        fontSize: 16,
+        height: 50,
     },
 });
 

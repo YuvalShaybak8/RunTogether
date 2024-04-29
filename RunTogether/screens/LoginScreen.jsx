@@ -13,13 +13,15 @@ const LoginScreen = ({ navigation }) => {
         try {
             const response = await client.post('/user/login', { email, password });
             console.log('Login successful:', response.data);
-            const token = response.data.token;
+            const { token, user } = response.data;
             await AsyncStorage.setItem('token', token);
+            await AsyncStorage.setItem('loggedInUserID', user._id);
             navigation.navigate('Home Page')
-            // Handle successful login, e.g., store user data in local storage or redirect to another page
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 console.warn('Login failed. Invalid email or password');
+                setEmail('')
+                setPassword('')
             } else {
                 console.error('Error logging in:', error.message);
             }

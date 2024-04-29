@@ -22,7 +22,7 @@ export default function App() {
         <Stack.Screen
           name="Home Page"
           component={HomePage}
-          options={{ headerTitle: '' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Sign Up"

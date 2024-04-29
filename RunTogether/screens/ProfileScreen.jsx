@@ -10,14 +10,78 @@ import {
   Keyboard,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import BottomNavigation from "../cmps/BottomNavigation";
+import client from '../backend/api/client.js';
 
 const ProfileScreen = () => {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState(require("../assets/avatar.jpg"));
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleDismissKeyboard = () => {
     Keyboard.dismiss();
   };
+
+  const handleEditProfileImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setProfileImage({ uri: result.assets[0].uri });
+    }
+  };
+
+  const handleUpdate = async () => {
+  try {
+    const response = await client.get('/user/email/' + email);
+    const existingUser = response.data;
+    console.log('existingUser',existingUser)
+    if (existingUser) {
+      // User with the email exists, update their profile
+      const updatedUser = {
+        _id: existingUser._id,
+        username,
+        password,
+        image: profileImage.uri || null,
+      };
+
+      // Send a PUT request to update the existing user
+      await client.put(`/user/${email}`, updatedUser);
+
+      console.log("Success: Profile updated successfully!");
+    } else {
+      // User with the email does not exist, create a new user
+      const newUser = {
+        username,
+        email,
+        password,
+        profileImage: profileImage.uri || null,
+      };
+
+      // Send a POST request to create a new user
+      await client.post("/user", newUser);
+
+      console.log("Success: User created successfully!");
+    }
+  } catch (error) {
+    console.error("Error updating/creating user:", error);
+  }
+};
+
 
   return (
     <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
@@ -25,14 +89,17 @@ const ProfileScreen = () => {
         <View style={styles.profileContainer}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={require("../assets/John Bol.jpg")}
+              source={profileImage}
               style={styles.profileImage}
             />
-            <View style={styles.editIconContainer}>
+            <TouchableOpacity
+              style={styles.editIconContainer}
+              onPress={handleEditProfileImage}
+            >
               <View>
                 <Feather name="edit-3" size={16} color="white" />
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.inputEditContainer}>
             <View style={styles.inputContainer}>
@@ -41,9 +108,11 @@ const ProfileScreen = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Jack Bol"
+                placeholder="John Doe"
                 placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
+                onChangeText={setUsername}
+                value={username}
               />
             </View>
           </View>
@@ -54,10 +123,12 @@ const ProfileScreen = () => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Jack8@gmail.com"
+                placeholder="JohnDoe@gmail.com"
                 keyboardType="email-address"
                 placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
+                onChangeText={setEmail}
+                value={email}
               />
             </View>
           </View>
@@ -72,6 +143,8 @@ const ProfileScreen = () => {
                 keyboardType="email-address"
                 placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
+                onChangeText={setPassword}
+                value={password}
               />
               <TouchableOpacity
                 style={styles.passwordVisibleButton}
@@ -86,7 +159,7 @@ const ProfileScreen = () => {
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.updateButton}>
+        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
           <Text style={styles.updateButtonText}>Update</Text>
         </TouchableOpacity>
         <BottomNavigation />
