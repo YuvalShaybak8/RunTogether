@@ -34,7 +34,19 @@ const ProfileScreen = () => {
               </View>
             </View>
           </View>
-          <Text style={styles.name}>Jack Bol</Text>
+          <View style={styles.inputEditContainer}>
+            <View style={styles.inputContainer}>
+              <View style={styles.icon}>
+                <Feather name="user" size={22} color="black" />
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Jack Bol"
+                placeholderTextColor="#7C808D"
+                selectionColor="#3662AA"
+              />
+            </View>
+          </View>
           <View style={styles.inputEditContainer}>
             <View style={styles.inputContainer}>
               <View style={styles.icon}>
@@ -48,9 +60,6 @@ const ProfileScreen = () => {
                 selectionColor="#3662AA"
               />
             </View>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
           </View>
           <View style={styles.inputEditContainer}>
             <View style={styles.inputContainer}>
@@ -75,13 +84,10 @@ const ProfileScreen = () => {
                 />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
+        <TouchableOpacity style={styles.updateButton}>
+          <Text style={styles.updateButtonText}>Update</Text>
         </TouchableOpacity>
         <BottomNavigation />
       </View>
@@ -172,16 +178,16 @@ const styles = StyleSheet.create({
   showPasswordIcon: {
     fontSize: 24,
   },
-  saveButton: {
+  updateButton: {
     backgroundColor: "#ff5252",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 4,
     alignItems: "center",
-    marginTop: 32,
-    marginHorizontal: 26,
+    marginTop: 60,
+    marginHorizontal: 38,
   },
-  saveButtonText: {
+  updateButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
@@ -196,15 +202,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
-
   navIcon: {
     fontSize: 24,
   },
   inputContainer: {
     flexDirection: "row",
-    width: "60%",
+    width: "80%",
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 10,
     height: 50,
     borderColor: "gray",
     borderRadius: 12,
