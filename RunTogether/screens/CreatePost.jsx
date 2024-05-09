@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import client from '../backend/api/client.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { ImgUploader } from "../cmps/ImgUploader.jsx";
 
 const CreatePost = ({ navigation }) => {
     const [description, setDescription] = useState('');
@@ -42,7 +43,7 @@ const CreatePost = ({ navigation }) => {
 
             const trimmedDescription = description.replace(/\n/g, ' ')
 
-            const response = await client.post('/post', { description: trimmedDescription, location, image }, {
+            const response = await client.post('/post', { description: trimmedDescription, location, image: image.imgUrl }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -58,30 +59,9 @@ const CreatePost = ({ navigation }) => {
         Keyboard.dismiss();
     };
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-        if (!result.cancelled) {
-            setImage(result.assets[0].uri);
-        }
-    };
-
-    const takePhoto = async () => {
-        let result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-
-        if (!result.cancelled) {
-            setImage(result.assets[0].uri);
-        }
-    };
+    const onUploaded = ( imgUrl ) => {
+        setImage(imgUrl);
+    }
 
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
@@ -96,7 +76,7 @@ const CreatePost = ({ navigation }) => {
                 
                 <View style={styles.imageContainer}>
                     {image ? (
-                        <Image source={{ uri: image }} style={styles.image} />
+                        <Image source={{ uri: image.imgUrl }} style={styles.image} />
                     ) : (
                         <Image
                             source={require("../assets/post_img2.jpg")}
@@ -105,12 +85,13 @@ const CreatePost = ({ navigation }) => {
                     )}
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                    <ImgUploader onUploaded={onUploaded}/>
+                    {/* <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                         <Text style={styles.uploadButtonText}>Upload your photo</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.uploadButton} onPress={takePhoto}>
                         <Text style={styles.uploadButtonText}>Take a photo</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 <Text style={styles.label}>Description</Text>
                 <TextInput
