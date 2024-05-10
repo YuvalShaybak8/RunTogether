@@ -22,7 +22,7 @@ router.get("/email/:userEmail", getUserByEmail)
 router.post("/login", login);
 
 // Update user profile
-router.put("/:userEmail", updateUserProfile);
+router.put("/:userId", updateUserProfile);
 
 // Delete user
 router.delete("/:email", deleteUser);

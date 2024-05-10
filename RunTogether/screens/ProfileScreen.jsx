@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,20 @@ import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import BottomNavigation from "../cmps/BottomNavigation";
 import client from '../backend/api/client.js';
+import { uploadService } from '../services/upload.service'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}) => {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(require("../assets/avatar.jpg"));
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loggedInUserID, setLoggedInUserID] = useState(null);
+
+  useEffect(() => {
+    fetchLoggedInUser();
+  }, []);
 
   const handleDismissKeyboard = () => {
     Keyboard.dismiss();
@@ -45,42 +52,80 @@ const ProfileScreen = () => {
     }
   };
 
-  const handleUpdate = async () => {
-  try {
-    const response = await client.get('/user/email/' + email);
-    const existingUser = response.data;
-    console.log('existingUser',existingUser)
-    if (existingUser) {
-      // User with the email exists, update their profile
-      const updatedUser = {
-        _id: existingUser._id,
-        username,
-        password,
-        image: profileImage.uri || null,
-      };
-
-      // Send a PUT request to update the existing user
-      await client.put(`/user/${email}`, updatedUser);
-
-      console.log("Success: Profile updated successfully!");
-    } else {
-      // User with the email does not exist, create a new user
-      const newUser = {
-        username,
-        email,
-        password,
-        profileImage: profileImage.uri || null,
-      };
-
-      // Send a POST request to create a new user
-      await client.post("/user", newUser);
-
-      console.log("Success: User created successfully!");
+  const fetchLoggedInUser = async () => {
+    try {
+      const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
+      setLoggedInUserID(currentLoggedInUserID);
+      const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
+      const { data } = userResponse;
+      console.log('data', data);
+      setUsername(data.username);
+      setEmail(data.email);
+      setProfileImage({ uri: data.image });
+      return data;
+    } catch (error) {
+      console.error('Error fetching logged in user:', error);
     }
-  } catch (error) {
-    console.error("Error updating/creating user:", error);
   }
-};
+
+  const handleUpdate = async () => {
+    try {
+      const response = await client.get('/user/email/' + email);
+      const existingUser = response.data;
+      console.log('existingUser',existingUser)
+      if (existingUser) {
+        const updatedUser = {
+          _id: existingUser._id,
+          email,
+          username,
+          password,
+          image: profileImage.uri || null,
+        };
+
+        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        }))}`;
+        const imgData = await uploadService.uploadImg(base64Img);
+
+        updatedUser.image = imgData.secure_url;
+
+        await client.put(`/user/${loggedInUserID}`, updatedUser);
+
+        console.log("Success: Profile updated successfully!");
+        navigation.navigate('Home Page');
+      } else {
+        // User with the email does not exist, create a new user
+        const newUser = {
+          username,
+          email,
+          password,
+          profileImage: profileImage.uri || null,
+        };
+
+        // Upload the profile image to Cloudinary
+        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        }))}`;
+        const imgData = await uploadService.uploadImg(base64Img);
+
+        // Set the Cloudinary image URL as the profile image
+        newUser.profileImage = imgData.secure_url;
+
+        // Send a POST request to create a new user
+        await client.post("/user", newUser);
+
+        console.log("Success: User created successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating/creating user:", error);
+    }
+  };
 
 
   return (

@@ -19,11 +19,13 @@ import client from '../backend/api/client.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { ImgUploader } from "../cmps/ImgUploader.jsx";
+import { uploadService } from '../services/upload.service';
 
 const CreatePost = ({ navigation }) => {
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
     const [image, setImage] = useState(null);
+    const [isImageUploaded, setIsImageUploaded] = useState(false);
     const googlePlacesAutocompleteRef = useRef(null)
 
     useEffect(() => {
@@ -39,59 +41,92 @@ const CreatePost = ({ navigation }) => {
 
     const handlePostPress = async () => {
         try {
+            if (!description.trim()) {
+                alert("Please enter a description.");
+                return;
+            }
+
             const token = await AsyncStorage.getItem('token');
-
-            const trimmedDescription = description.replace(/\n/g, ' ')
-
-            const response = await client.post('/post', { description: trimmedDescription, location, image: image.imgUrl }, {
+            const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
+            const trimmedDescription = description.replace(/\n/g, ' ')            
+            console.log('image', image, 'location', location, 'description', trimmedDescription, 'token', token, 'currentLoggedInUserID', currentLoggedInUserID)
+            await client.post('/post', { description: trimmedDescription, location, image: image?.imgUrl }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            navigation.navigate('Home Page');
-            } catch (error) {
-                console.log('error: ', error);
-        }
-    };  
 
+        
+            const response = await client.get('/user/' + currentLoggedInUserID);
+            const existingUser = response.data;
+            console.log('existingUser',existingUser)
+            if (existingUser) {
+              const updatedUser = {...updatedUser, posts: [...existingUser.posts, { description: trimmedDescription, location, image: image?.imgUrl }]};
+
+            const response = await client.put(`/user/${currentLoggedInUserID}`, updatedUser);
+            navigation.navigate('Home Page');
+        }} catch (error) {
+            console.log('error: ', error);
+        }
+    };
 
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
     };
 
-    const onUploaded = ( imgUrl ) => {
+    const onUploaded = (imgUrl) => {
         setImage(imgUrl);
-    }
+        setIsImageUploaded(true);
+    };
+
+    const handleLocationSelect = async (details) => {
+        try {
+            setLocation(details.description);
+            const placeId = details.place_id;
+            const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry&key=AIzaSyBtoaDHY9OmHFBh9oIBmzADt_R6wR1uC2Q`);
+            const data = await response.json();
+            const { lat, lng } = data.result.geometry.location;
+            const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&size=600x300&zoom=15&markers=color:red%7C${lat},${lng}&key=AIzaSyBtoaDHY9OmHFBh9oIBmzADt_R6wR1uC2Q`;
+            const base64Img = `data:image/jpg;base64,${await fetch(mapUrl).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            }))}`;
+            const imgData = await uploadService.uploadImg(base64Img);
+
+            setImage({ imgUrl: imgData.secure_url });
+        } catch (error) {
+            console.error("Error fetching location data:", error);
+        }
+    };
+    
 
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior="position"
-                keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
             >
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Post</Text>
                 </View>
-                
+
                 <View style={styles.imageContainer}>
                     {image ? (
                         <Image source={{ uri: image.imgUrl }} style={styles.image} />
                     ) : (
-                        <Image
-                            source={require("../assets/post_img2.jpg")}
-                            style={styles.image}
-                        />
+                        <TouchableOpacity onPress={() => navigation.navigate('ImgUploader')}>
+                            <Image
+                                source={require("../assets/post_img2.jpg")}
+                                style={styles.image}
+                            />
+                        </TouchableOpacity>
                     )}
                 </View>
                 <View style={styles.buttonContainer}>
-                    <ImgUploader onUploaded={onUploaded}/>
-                    {/* <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-                        <Text style={styles.uploadButtonText}>Upload your photo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.uploadButton} onPress={takePhoto}>
-                        <Text style={styles.uploadButtonText}>Take a photo</Text>
-                    </TouchableOpacity> */}
+                    <ImgUploader onUploaded={onUploaded} />
                 </View>
                 <Text style={styles.label}>Description</Text>
                 <TextInput
@@ -101,14 +136,14 @@ const CreatePost = ({ navigation }) => {
                     onChangeText={setDescription}
                     multiline
                 />
-                <Autocomplete location={location} setLocation={setLocation}/>
+                <Autocomplete location={location} setLocation={setLocation} handleLocationSelect={handleLocationSelect} />
                 <TouchableOpacity style={styles.postButton} onPress={handlePostPress}>
                     <View style={styles.icon}>
                         <Feather name="send" size={22} color="white" />
                     </View>
                     <Text style={styles.postButtonText}>Post</Text>
                 </TouchableOpacity>
-                
+
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
@@ -153,7 +188,7 @@ const styles = StyleSheet.create({
         marginVertical: 6,
     },
     textarea: {
-        height: 120,
+        height: 100,
         textAlignVertical: "top",
         backgroundColor: "#F3F3F6FF",
         borderWidth: 0,
@@ -198,7 +233,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: 10,
         backgroundColor: "#ff5252",
-        marginRight: 10, 
+        marginRight: 10,
     },
     uploadButtonText: {
         fontSize: 14,
@@ -207,13 +242,13 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: "row",
-        justifyContent: "space-between", 
-        marginBottom: 10, 
+        justifyContent: "space-between",
+        marginBottom: 10,
     },
     autocompleteContainer: {
-    width: "100%",
-    zIndex: "999",
-    borderRadius: 10,
-  },
+        width: "100%",
+        zIndex: "999",
+        borderRadius: 10,
+    },
 });
 export default CreatePost;

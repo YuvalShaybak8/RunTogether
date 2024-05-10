@@ -15,16 +15,16 @@ export function ImgUploader({ onUploaded = null }) {
                 aspect: [4, 3],
                 base64: true,
             });
-            const {uri} = response.assets[0]
+            const { uri } = response.assets[0];
             if (response.canceled) {
                 setIsUploading(false);
                 return;
             }
-            setSelectedImage({localUri: uri});
+            setSelectedImage({ localUri: uri });
             let base64Img = `data:image/jpg;base64,${response.assets[0].base64}`;
             const imgData = await uploadService.uploadImg(base64Img);
             setIsUploading(false);
-            console.log('imgData', imgData)
+            console.log('imgData', imgData);
             onUploaded && onUploaded({ imgUrl: imgData.secure_url });
         } catch (error) {
             setIsUploading(false);
@@ -45,12 +45,14 @@ export function ImgUploader({ onUploaded = null }) {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button} onPress={uploadImg}>
-                <Text style={styles.buttonText}>{getUploadLabel()}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={takePhoto}>
-                <Text style={styles.buttonText}>{getPhotoLabel()}</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonsContainer}>
+                <TouchableOpacity style={[styles.button, styles.uploadButton]} onPress={uploadImg}>
+                    <Text style={styles.buttonText}>{getUploadLabel()}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.photoButton]} onPress={takePhoto}>
+                    <Text style={styles.buttonText}>{getPhotoLabel()}</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -60,15 +62,29 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     },
+    buttonsContainer: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        width: '100%',
+    },
     button: {
-        backgroundColor: '#2196F3',
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 5,
-        marginBottom: 10,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
+        textAlign: 'center',
+    },
+    uploadButton: {
+        backgroundColor: '#F7706EFF', 
+        marginRight: 10, 
+        flex: 1, 
+    },
+    photoButton: {
+        backgroundColor: '#F7706EFF', 
+        marginLeft: 10, 
+        flex: 1, 
     },
 });

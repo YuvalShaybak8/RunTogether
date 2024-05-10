@@ -86,9 +86,9 @@ async function updateUserProfile(req, res) {
     try {
         console.log('req.body', req.body)
         console.log('req.params', req.params)
-        const { userEmail } = req.params; // Change to userEmail
-        const { username, password, image, _id } = req.body;
-        const updatedUser = await UserModel.findByIdAndUpdate(_id, { username, email: userEmail, image }, { new: true });
+        const { userId } = req.params; 
+        const { username, password, image, email, posts } = req.body;
+        const updatedUser = await UserModel.findByIdAndUpdate(userId, { username, email, image, posts }, { new: true });
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(500).json({ message: error.message });

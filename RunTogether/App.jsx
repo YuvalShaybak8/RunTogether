@@ -7,6 +7,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import CreatePost from './screens/CreatePost';
 import ProfileScreen from './screens/ProfileScreen';
 import MyPostsScreen from './screens/MyPostsScreen';
+import PostDetails from './screens/PostDetails';
 
 const Stack = createStackNavigator();
 
@@ -42,6 +43,11 @@ export default function App() {
         <Stack.Screen
           name="My Posts"
           component={MyPostsScreen}
+          options={{ headerTitle: '' }}
+        />
+        <Stack.Screen
+          name="PostDetails"
+          component={PostDetails}
           options={{ headerTitle: '' }}
         />
       </Stack.Navigator>

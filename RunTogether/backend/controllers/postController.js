@@ -14,11 +14,12 @@ async function createPost(req, res) {
         const newPost = new postModel({
             user: userId, // Include user ID in the post data
             image,
-            description,
+            description : description || '',
             location,
         });
-
+        console.log('newPost', newPost)
         const savedPost = await newPost.save();
+        console.log('savedPost', savedPost)
         res.status(201).json(savedPost);
     } catch (error) {
         console.error('Error saving post:', error);

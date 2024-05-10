@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { set } from "mongoose";
 
 const BottomNavigation = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -45,15 +46,23 @@ const BottomNavigation = () => {
     })
   ).current;
 
+  const goToHomeScreen = () => {
+    setShowMenu(false);
+    navigation.navigate("Home Page");
+  }
+
   const goToPostScreen = () => {
+    setShowMenu(false);
     navigation.navigate("Create Post");
   };
 
   const goToProfileScreen = () => {
+    setShowMenu(false);
     navigation.navigate("Profile Details");
   };
 
   const goToMyPostsScreen = () => {
+    setShowMenu(false);
     navigation.navigate("My Posts");
   
   }
@@ -70,7 +79,7 @@ const BottomNavigation = () => {
     <TouchableWithoutFeedback onPress={handlePressOutsideMenu}>
       <View style={styles.container}>
         <View style={styles.bottomNavigation}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={goToHomeScreen}>
             <View style={styles.icon}>
               <Feather name="home" size={22} color="#F7706EFF" />
             </View>
