@@ -1,50 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity,KeyboardAvoidingView,SafeAreaView } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, KeyboardAvoidingView, SafeAreaView, TextInput } from 'react-native';
 import client from '../backend/api/client.js';
 import avatarImage from '../assets/avatar.jpg';
 import placeholder from '../assets/placeholder.png';
 import chat from '../assets/chat.png';
+import chatBubble from '../assets/chatbubble.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomNavigation from '../cmps/BottomNavigation.jsx';
 
 const MyPostsScreen = () => {
+  const [user, setUser] = useState({ posts: [], image: avatarImage, username: '', email: '', password: '', _id: '', createdAt: '', updatedAt: '' });
   const [posts, setPosts] = useState([]);
   const [profileImage, setProfileImage] = useState(require("../assets/avatar.jpg"));
+  const [editableDescription, setEditableDescription] = useState(null);
+  const [editedDescription, setEditedDescription] = useState('');
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [user.posts]);
 
   const fetchUser = async () => {
     try {
       const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
-      console.log('currentLoggedInUserID :>> ', currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
-      console.log('data', data);
+      setUser(data);
       setPosts(data.posts);
       setProfileImage({ uri: data.image });
       return data;
     } catch (error) {
-        console.error('Error fetching user posts:', error);
+      console.error('Error fetching user posts:', error);
     }
   }
 
-  const renderPost = ({ item }) => (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+  const formatPostDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return date.toLocaleString('en-US', options);
+  };
+
+  const handleEditDescription = (postId, description) => {
+    setEditableDescription(postId);
+    setEditedDescription(description);
+  };
+  
+
+  const handleSaveDescription = async (postId, editedDescription) => {
+    try {
+      const updatedPosts = user.posts.map(post => 
+        post._id === postId ? { ...post, description: editedDescription } : post
+      );
+      setUser(user => ({ ...user, posts: updatedPosts }));
+  
+      await client.put(`/post/${postId}`, { description: editedDescription });
+  
+      await client.put(`/user/${user._id}`, { posts: updatedPosts });
+  
+      console.log(`Saving description for post ${postId}: ${editedDescription}`);
+      setEditableDescription(null); 
+    } catch (error) {
+      console.error('Error saving description:', error);
+    }
+  };
+  
+
+  const renderPost = ({ item, index }) => {
+    const isLastItem = index === posts.length - 1;
+
+    return (<KeyboardAvoidingView style={styles.container} key={item._id} behavior="padding">
       <SafeAreaView style={styles.container}>
-        <View style={styles.postContainer}>
+      <View style={[styles.postContainer, isLastItem && styles.postContainerLast]}>
           <View style={styles.userContainer}>
             <Image source={profileImage || avatarImage} style={styles.profilePic} />
             <View style={styles.userInfo}>
-              <Text style={styles.username}>{item.username}</Text>
-              <Text style={styles.postDate}>{item.postDate}</Text>
+              <Text style={styles.username}>{user.username}</Text>
+              <Text style={styles.postDate}>{formatPostDate(item.createdAt)}</Text>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity style={styles.editButton} onPress={() => handleEditDescription(item._id)}>
               <Text style={styles.editButtonText}>Edit</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.postDescription}>{item.description}</Text>
+          {
+            editableDescription === item._id ? (
+              <TextInput
+                style={styles.editableDescription}
+                value={editedDescription}
+                onChangeText={(text) => setEditedDescription(text)}
+              />
+            ) : (
+              <Text style={styles.postDescription}>{item.description}</Text>
+            )
+          }
           {item.image && <Image source={{ uri: item.image }} style={styles.postImage} />}
           {item.location && (
             <View style={styles.locationContainer}>
@@ -53,18 +105,22 @@ const MyPostsScreen = () => {
             </View>
           )}
           <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.actionButton}>
-              <Image source={chat} style={styles.actionIcon} />
+            <TouchableOpacity>
+              <Image source={chatBubble} style={styles.chatBubble} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+            <View style={styles.saveDeleteBtns}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleSaveDescription(item._id, editedDescription)}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleSaveDescription(item._id, editedDescription)}>
+                <Text style={styles.saveButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
-  );
-  
+  )};
 
   return (
     <View style={styles.container}>
@@ -72,9 +128,7 @@ const MyPostsScreen = () => {
         data={posts}
         renderItem={renderPost}
         keyExtractor={(item) => item._id}
-        ListHeaderComponent={<Text style={styles.screenTitle}>My posts</Text>}
       />
-      {/* Position BottomNavigation at the bottom */}
       <BottomNavigation style={styles.bottomNavigation} />
     </View>
   );
@@ -95,7 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     marginVertical: 10,
-    marginHorizontal: 15,
     padding: 15,
     shadowColor: '#000',
     shadowOffset: {
@@ -105,6 +158,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  postContainerLast: {
+    marginBottom: 80,
   },
   userContainer: {
     flexDirection: 'row',
@@ -147,6 +203,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#333',
   },
+  editableDescription: {
+    fontSize: 14,
+    marginBottom: 10,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 5,
+  },
   postImage: {
     width: '100%',
     height: 200,
@@ -174,6 +239,13 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     padding: 10,
+    backgroundColor: '#F7706E',
+    marginHorizontal: 10,
+    borderRadius: 5,
+  },
+  chatBubble:{
+    width: 30,
+    height: 30,
   },
   actionIcon: {
     width: 20,
@@ -182,7 +254,12 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ff4d4d',
+    color: 'white',
+  },
+  saveDeleteBtns:{
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 

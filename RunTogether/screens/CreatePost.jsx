@@ -50,7 +50,7 @@ const CreatePost = ({ navigation }) => {
             const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
             const trimmedDescription = description.replace(/\n/g, ' ')            
             console.log('image', image, 'location', location, 'description', trimmedDescription, 'token', token, 'currentLoggedInUserID', currentLoggedInUserID)
-            await client.post('/post', { description: trimmedDescription, location, image: image?.imgUrl }, {
+            const postResponse = await client.post('/post', { description: trimmedDescription, location, image: image?.imgUrl }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -59,13 +59,12 @@ const CreatePost = ({ navigation }) => {
         
             const response = await client.get('/user/' + currentLoggedInUserID);
             const existingUser = response.data;
-            console.log('existingUser',existingUser)
             if (existingUser) {
-              const updatedUser = {...updatedUser, posts: [...existingUser.posts, { description: trimmedDescription, location, image: image?.imgUrl }]};
-
+              const updatedUser = {...existingUser, posts: [...existingUser.posts, postResponse.data]};
             const response = await client.put(`/user/${currentLoggedInUserID}`, updatedUser);
             navigation.navigate('Home Page');
-        }} catch (error) {
+            }
+        } catch (error) {
             console.log('error: ', error);
         }
     };
@@ -94,8 +93,9 @@ const CreatePost = ({ navigation }) => {
                 reader.readAsDataURL(blob);
             }))}`;
             const imgData = await uploadService.uploadImg(base64Img);
-
-            setImage({ imgUrl: imgData.secure_url });
+            if (!isImageUploaded) {
+                setImage({ imgUrl: imgData.secure_url });
+            }
         } catch (error) {
             console.error("Error fetching location data:", error);
         }

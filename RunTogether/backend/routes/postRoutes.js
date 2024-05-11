@@ -6,7 +6,9 @@ const {
     getAllPosts,
     getPostsByUser,
     updatePost,
-    deletePost
+    deletePost,
+    likePost,
+    commentOnPost
 } = require('../controllers/postController.js');
 
 
@@ -22,4 +24,7 @@ router.put('/:id', updatePost);
 
 router.delete('/:id', deletePost);
 
+router.put('/:postId/like', likePost);
+
+router.put('/:postId/comment', commentOnPost);
 module.exports = router;

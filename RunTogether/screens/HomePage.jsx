@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet,KeyboardAvoidingView,RefreshControl,SafeAreaView,StatusBar,TouchableOpacity } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet,KeyboardAvoidingView,RefreshControl,SafeAreaView,StatusBar,TouchableOpacity, TextInput } from 'react-native';
 import BottomNavigation from "../cmps/BottomNavigation";
 import client from '../backend/api/client.js';
 import axios from 'axios';
 import avatarImage from '../assets/avatar.jpg';
+import likeIcon from '../assets/like.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -12,6 +13,7 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loggedInUserID, setLoggedInUserID] = useState(null)
   const [loggedInUserProfilePic, setLoggedInUserProfilePic] = useState(avatarImage);
+  const [comment, setComment] = useState('');
 
 useEffect(() => {
   fetchData();
@@ -75,6 +77,57 @@ const fetchData = async () => {
     setIsRefreshing(false); 
   };
 
+  const likePost = async (postId) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await client.put(`/post/${postId}/like`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const updatedPost = response.data;
+      const updatedPosts = posts.map((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  const commentOnPost = async (postId, text) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await client.put(
+        `/posts/${postId}/comment`,
+        { text },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const updatedPost = response.data;
+      const updatedPosts = posts.map((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      );
+      setPosts(updatedPosts);
+    } catch (error) {
+      console.error('Error commenting on post:', error);
+    }
+  };
+
+  const handleCommentChange = (text) => {
+    setComment(text);
+  };
+
+  const handleCommentSubmit = () => {
+    if (comment.trim()) {
+      commentOnPost(item._id, comment.trim());
+      setComment('');
+    }
+  };
+
   const HeaderComponent = ({ loggedInUserProfilePic }) => (
     <View style={styles.headerContainer}>
       <View style={styles.profilePicContainer}>
@@ -90,6 +143,15 @@ const fetchData = async () => {
       <Text style={styles.title}>Run Together</Text>
     </View>
   );
+
+  const CommentComponent = ({ comment }) => {
+    return (
+      <View style={styles.commentContainer}>
+        <Text style={styles.commentText}>{comment.text}</Text>
+        <Text style={styles.commentAuthor}>- {comment.user.username}</Text>
+      </View>
+    );
+  };
   
 
   const renderPost = ({ item, index }) => {
@@ -117,12 +179,21 @@ const fetchData = async () => {
               {item.location && <Text style={styles.locationText}>{item.location}</Text>}
             </View>
           )}
-          {item.likes && <Text style={styles.likeCount}>{item.likes} likes</Text>}
+          <View style={styles.likesContainer}>
+            <TouchableOpacity onPress={() => likePost(item._id)}>
+              <Image source={likeIcon} style={styles.profilePic} />
+            </TouchableOpacity>
+            <Text style={styles.likeCount}>{item.likes.length} likes</Text>
         </View>
-      </TouchableOpacity>
-    );
-  };
-  
+        <View style={styles.commentsContainer}>
+          <Text style={styles.commentCount}>
+            {item.comments.length} comment{item.comments.length !== 1 ? 's' : ''}
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -156,13 +227,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
-    marginTop: 50
   },
   postContainer: {
     backgroundColor: '#fff',
     borderRadius: 10,
-    marginVertical: 10,
-    marginHorizontal: 15,
+    marginVertical: 5,
     padding: 15,
     shadowColor: '#000',
     shadowOffset: {
@@ -249,7 +318,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#888',
   },
-});
-
+  likesContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  commentCount: {
+      fontSize: 14,
+      color: '#666',
+      marginTop: 10,
+    },
+  });
 
 export default HomePage;

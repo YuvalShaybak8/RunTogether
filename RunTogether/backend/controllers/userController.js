@@ -87,7 +87,7 @@ async function updateUserProfile(req, res) {
         console.log('req.body', req.body)
         console.log('req.params', req.params)
         const { userId } = req.params; 
-        const { username, password, image, email, posts } = req.body;
+        const { username, image, email, posts } = req.body;
         const updatedUser = await UserModel.findByIdAndUpdate(userId, { username, email, image, posts }, { new: true });
         res.status(200).json(updatedUser);
     } catch (error) {

@@ -5,7 +5,7 @@ import { uploadService } from '../services/upload.service';
 
 export function ImgUploader({ onUploaded = null }) {
     const [isUploading, setIsUploading] = useState(false);
-    const [selectedImage, setSelectedImage] = useState("");
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const selectImage = async (launchFunction) => {
         setIsUploading(true);

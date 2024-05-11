@@ -43,7 +43,7 @@ export default function App() {
         <Stack.Screen
           name="My Posts"
           component={MyPostsScreen}
-          options={{ headerTitle: '' }}
+          options={{ headerTitle: 'My Posts' }}
         />
         <Stack.Screen
           name="PostDetails"

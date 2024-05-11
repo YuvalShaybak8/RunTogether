@@ -1,28 +1,85 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import avatarImage from '../assets/avatar.jpg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import client from '../backend/api/client.js';
 
-const PostDetails = ({ route }) => {
+const PostDetails = ({ route, navigation }) => {
   const { post } = route.params;
+  const [newComment, setNewComment] = useState('');
+
+  const renderComment = ({ item }) => (
+    <View style={styles.commentContainer}>
+      <Text style={styles.commentText}>{item.text}</Text>
+      <Text style={styles.commentAuthor}>- {item.user.username}</Text>
+    </View>
+  );
+
+  const handleCommentChange = (text) => {
+    setNewComment(text);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (newComment.trim()) {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const response = await client.put(
+          `/post/${post._id}/comment`,
+          { text: newComment.trim() },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const updatedPost = response.data;
+        navigation.setParams({ post: updatedPost });
+        setNewComment('');
+      } catch (error) {
+        console.error('Error commenting on post:', error);
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.userContainer}>
-        {post.userProfilePic ? (
-          <Image source={{ uri: post.userProfilePic }} style={styles.profilePic} />
-        ) : (
-          <Image source={avatarImage} style={styles.profilePic} />
-        )}
-        <Text style={styles.userName}>{post.username}</Text>
-        <Text style={styles.postDate}>{post.postDate}</Text>
-      </View>
-      <Text style={styles.postDescription}>{post.description}</Text>
-      {post.image && <Image source={{ uri: post.image }} style={styles.postImage} />}
-      {post.location && (
-        <View style={styles.locationContainer}>
-          {post.location && <Text style={styles.locationText}>{post.location}</Text>}
+      <View style={styles.innerContainer}>
+        <View style={styles.userContainer}>
+          {post.userProfilePic ? (
+            <Image source={{ uri: post.userProfilePic }} style={styles.profilePic} />
+          ) : (
+            <Image source={avatarImage} style={styles.profilePic} />
+          )}
+          <Text style={styles.userName}>{post.username}</Text>
+          <Text style={styles.postDate}>{post.postDate}</Text>
         </View>
-      )}
-      {post.likes && <Text style={styles.likeCount}>{post.likes} likes</Text>}
+        <Text style={styles.postDescription}>{post.description}</Text>
+        {post.image && <Image source={{ uri: post.image }} style={styles.postImage} />}
+        {post.location && (
+          <View style={styles.locationContainer}>
+            {post.location && <Text style={styles.locationText}>{post.location}</Text>}
+          </View>
+        )}
+        {post.likes && <Text style={styles.likeCount}>{post.likes.length} likes</Text>}
+        <FlatList
+          data={post.comments}
+          renderItem={renderComment}
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.commentsContainer}
+        />
+      </View>
+      <View style={styles.commentInputContainer}>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Add a comment..."
+          placeholderTextColor={'black'}
+          value={newComment}
+          onChangeText={handleCommentChange}
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -31,6 +88,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
+  },
+  innerContainer: {
+    flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 20,
   },
@@ -78,6 +138,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 5,
+  },
+  commentsContainer: {
+    marginTop: 20,
+    maxHeight: 350, 
+  },
+  commentsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  commentContainer: {
+    backgroundColor: 'rgb(247,112,110)',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  commentText: {
+    fontSize: 14,
+    color: 'white',
+  },
+  commentAuthor: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 5,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 60,
+    paddingHorizontal: 15,
+  },
+  commentInput: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  sendButton: {
+    backgroundColor: 'rgb(247,112,110)',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  sendButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

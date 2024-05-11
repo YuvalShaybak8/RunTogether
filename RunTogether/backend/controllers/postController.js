@@ -5,17 +5,17 @@ async function createPost(req, res) {
     try {
         const { image, description, location } = req.body;
 
-        // Extract user ID from the token
         const token = req.headers.authorization.split(' ')[1];
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Replace 'your-secret-key' with your actual secret key
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET); 
         const userId = decodedToken.user.id;
 
-        // Create new post with user ID
         const newPost = new postModel({
-            user: userId, // Include user ID in the post data
+            user: userId,
             image,
             description : description || '',
             location,
+            likes: [],
+            comments: []
         });
         console.log('newPost', newPost)
         const savedPost = await newPost.save();
@@ -49,8 +49,8 @@ async function getPostsByUser(req, res) {
 async function updatePost(req, res) {
     try {
         const { id } = req.params;
-        const { image, description, location } = req.body;
-        const updatedPost = await postModel.findByIdAndUpdate(id, { image, description, location }, { new: true });
+        const {description } = req.body;
+        const updatedPost = await postModel.findByIdAndUpdate(id, { description }, { new: true });
         res.status(200).json(updatedPost);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -67,10 +67,67 @@ async function deletePost(req, res) {
     }
 }
 
+async function likePost(req, res) {
+    try {
+      const { postId } = req.params;
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decodedToken.user.id;
+  
+      const post = await postModel.findById(postId);
+  
+      // Check if the user has already liked the post
+      const isLiked = post.likes.includes(userId);
+  
+      if (isLiked) {
+        // Remove the user's like from the post
+        post.likes = post.likes.filter((like) => like.toString() !== userId);
+      } else {
+        // Add the user's like to the post
+        post.likes.push(userId);
+      }
+  
+      const updatedPost = await post.save();
+      res.status(200).json(updatedPost);
+    } catch (error) {
+      console.error('Error liking/unliking post:', error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+async function commentOnPost(req, res) {
+    try {
+      const { postId } = req.params;
+      const { text } = req.body;
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decodedToken.user.id;
+  
+      const post = await postModel.findById(postId);
+  
+      const newComment = {
+        user: userId,
+        text,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+  
+      post.comments.push(newComment);
+  
+      const updatedPost = await post.save();
+      res.status(200).json(updatedPost);
+    } catch (error) {
+      console.error('Error commenting on post:', error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+
 module.exports = {
     createPost,
     getAllPosts,
     getPostsByUser,
     updatePost,
-    deletePost
+    deletePost,
+    likePost,
+    commentOnPost
 };
