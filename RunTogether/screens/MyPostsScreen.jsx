@@ -17,7 +17,7 @@ const MyPostsScreen = () => {
 
   useEffect(() => {
     fetchUser();
-  }, [user.posts]);
+  }, []);
 
   const fetchUser = async () => {
     try {
@@ -80,6 +80,7 @@ const MyPostsScreen = () => {
             <Image source={profileImage || avatarImage} style={styles.profilePic} />
             <View style={styles.userInfo}>
               <Text style={styles.username}>{user.username}</Text>
+              {console.log('item.createdAt', item)}
               <Text style={styles.postDate}>{formatPostDate(item.createdAt)}</Text>
             </View>
             <TouchableOpacity style={styles.editButton} onPress={() => handleEditDescription(item._id)}>

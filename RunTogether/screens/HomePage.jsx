@@ -1,59 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet,KeyboardAvoidingView,RefreshControl,SafeAreaView,StatusBar,TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, KeyboardAvoidingView, RefreshControl, SafeAreaView, StatusBar, TouchableOpacity, TextInput } from 'react-native';
 import BottomNavigation from "../cmps/BottomNavigation";
 import client from '../backend/api/client.js';
 import axios from 'axios';
 import avatarImage from '../assets/avatar.jpg';
 import likeIcon from '../assets/like.png';
+import fullLikeIcon from '../assets/like_full.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   const [posts, setPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [loggedInUserID, setLoggedInUserID] = useState(null)
+  const [loggedInUserID, setLoggedInUserID] = useState(null);
   const [loggedInUserProfilePic, setLoggedInUserProfilePic] = useState(avatarImage);
-  const [comment, setComment] = useState('');
+  const [likedPosts, setLikedPosts] = useState([]);
 
-useEffect(() => {
-  fetchData();
-  fetchLoggedInUserProfilePic()
-}, [loggedInUserProfilePic]);
+  useEffect(() => {
+    fetchData();
+    fetchLoggedInUserProfilePic();
+    getLikedPosts();
+  }, []);
 
-const fetchData = async () => {
-  try {
-    const postsResponse = await client.get('/post');
-    const posts = postsResponse.data;
+  const fetchData = async () => {
+    try {
+      const postsResponse = await client.get('/post');
+      const posts = postsResponse.data;
 
-    // Fetch user details for each post
-    const postsWithUserData = await Promise.all(
-      posts.map(async (post) => {
-        try {
-          const userResponse = await client.get(`/user/${post.user}`);
-          const userData = userResponse.data;
-          const postDate = new Date(userData.createdAt).toLocaleString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          }); 
-          return { ...post, userProfilePic: userData.image, username: userData.username, postDate };
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          // Handle the error, maybe set a default value for userProfilePic and username
-          return { ...post, userProfilePic: null, username: 'Unknown', postDate: '' };
-        }
-      })
-    );
+      // Fetch user details for each post
+      const postsWithUserData = await Promise.all(
+        posts.map(async (post) => {
+          try {
+            const userResponse = await client.get(`/user/${post.user}`);
+            const userData = userResponse.data;
+            const postDate = new Date(userData.createdAt).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            return { ...post, userProfilePic: userData.image, username: userData.username, postDate };
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+            // Handle the error, maybe set a default value for userProfilePic and username
+            return { ...post, userProfilePic: null, username: 'Unknown', postDate: '' };
+          }
+        })
+      );
 
-    setPosts(postsWithUserData);
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    // Handle the error, maybe display an error message to the user
-  }
-};
-
+      setPosts(postsWithUserData);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      // Handle the error, maybe display an error message to the user
+    }
+  };
 
   const fetchLoggedInUserProfilePic = async () => {
     try {
@@ -63,21 +63,32 @@ const fetchData = async () => {
       const { data } = userResponse;
       const userProfilePic = data.image;
       setLoggedInUserProfilePic(userProfilePic || null);
-      console.log('userProfilePic', userProfilePic)
+      console.log('userProfilePic', userProfilePic);
       return userProfilePic;
     } catch (error) {
       console.error('Error fetching logged in user profile picture:', error);
-      setLoggedInUserProfilePic(null); 
+      setLoggedInUserProfilePic(null);
     }
-  }
-
-  const handleRefresh = () => {
-    setIsRefreshing(true); 
-    fetchData(); 
-    setIsRefreshing(false); 
   };
 
-  const likePost = async (postId) => {
+  const getLikedPosts = async () => {
+    const likedPostsIDs = [];
+    posts.forEach((post) => {
+      if (post.likes.includes(loggedInUserID)) {
+        likedPostsIDs.push(post._id);
+      }
+    });
+    setLikedPosts(likedPostsIDs);
+  };
+  
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchData();
+    setIsRefreshing(false);
+  };
+
+  const toggleLike = async (postId) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await client.put(`/post/${postId}/like`, null, {
@@ -90,42 +101,22 @@ const fetchData = async () => {
         post._id === updatedPost._id ? updatedPost : post
       );
       setPosts(updatedPosts);
+      updateLikedPosts(updatedPost._id);
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error toggling like:', error);
     }
   };
 
-  const commentOnPost = async (postId, text) => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await client.put(
-        `/posts/${postId}/comment`,
-        { text },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const updatedPost = response.data;
-      const updatedPosts = posts.map((post) =>
-        post._id === updatedPost._id ? updatedPost : post
-      );
-      setPosts(updatedPosts);
-    } catch (error) {
-      console.error('Error commenting on post:', error);
+  const updateLikedPosts = (postId) => {
+    if (likedPosts.includes(postId)) {
+      setLikedPosts(likedPosts.filter((id) => id !== postId));
+    } else {
+      setLikedPosts([...likedPosts, postId]);
     }
   };
 
-  const handleCommentChange = (text) => {
-    setComment(text);
-  };
-
-  const handleCommentSubmit = () => {
-    if (comment.trim()) {
-      commentOnPost(item._id, comment.trim());
-      setComment('');
-    }
+  const isPostLiked = (postId) => {
+    return likedPosts.includes(postId);
   };
 
   const HeaderComponent = ({ loggedInUserProfilePic }) => (
@@ -143,16 +134,6 @@ const fetchData = async () => {
       <Text style={styles.title}>Run Together</Text>
     </View>
   );
-
-  const CommentComponent = ({ comment }) => {
-    return (
-      <View style={styles.commentContainer}>
-        <Text style={styles.commentText}>{comment.text}</Text>
-        <Text style={styles.commentAuthor}>- {comment.user.username}</Text>
-      </View>
-    );
-  };
-  
 
   const renderPost = ({ item, index }) => {
     const isLastItem = index === posts.length - 1;
@@ -179,32 +160,33 @@ const fetchData = async () => {
               {item.location && <Text style={styles.locationText}>{item.location}</Text>}
             </View>
           )}
-          <View style={styles.likesContainer}>
-            <TouchableOpacity onPress={() => likePost(item._id)}>
-              <Image source={likeIcon} style={styles.profilePic} />
+          <View style={styles.likesAndComments}>
+            <TouchableOpacity onPress={() => toggleLike(item._id)} style={styles.likesContainer}>
+              <Image source={isPostLiked(item._id) ? fullLikeIcon : likeIcon} style={[styles.likeIcon, { tintColor: isPostLiked(item._id) ? '#0866ff' : '#666' }]} />
+              <Text style={[styles.likeCount, { color: isPostLiked(item._id) ? '#0866ff' : '#666' }]}>{item.likes.length} Like{item.likes.length !== 1 ? 's' : ''}</Text>
             </TouchableOpacity>
-            <Text style={styles.likeCount}>{item.likes.length} likes</Text>
+            <View style={styles.commentsContainer}>
+              <Text style={styles.commentCount}>
+                {item.comments.length} comment{item.comments.length !== 1 ? 's' : ''}
+              </Text>
+            </View>
+          </View>
         </View>
-        <View style={styles.commentsContainer}>
-          <Text style={styles.commentCount}>
-            {item.comments.length} comment{item.comments.length !== 1 ? 's' : ''}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  };
+  
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <HeaderComponent loggedInUserProfilePic={loggedInUserProfilePic} />
+        <StatusBar barStyle="dark-content" />
+        <HeaderComponent loggedInUserProfilePic={loggedInUserProfilePic} />
         <FlatList
           data={posts}
           renderItem={renderPost}
           keyExtractor={(item) => item._id}
-          refreshControl={ 
+          refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
@@ -213,11 +195,11 @@ const fetchData = async () => {
           onScroll={(event) => {
             const offsetY = event.nativeEvent.contentOffset.y;
             if (offsetY <= 0) {
-              handleRefresh(); 
+              handleRefresh();
             }
           }}
         />
-      <BottomNavigation />
+        <BottomNavigation />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -250,12 +232,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    paddingLeft: 15,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  profilePicContainer: {
+    marginRight: 10,
+  },
   profilePic: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: 10,
-    backgroundColor: '#c1c1c2',
   },
   userName: {
     fontWeight: 'bold',
@@ -284,50 +278,33 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 10,
   },
   likeCount: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 5,
   },
-  headerContainer: {
+  likesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#fff',
   },
-  profilePicContainer: {
+  commentsContainer: {},
+  commentCount: {
+    fontSize: 14,
+    color: '#666',
     marginRight: 10,
   },
-  profilePic: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  noPosts: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  noPostsText: {
-    fontSize: 18,
-    color: '#888',
-  },
-  likesContainer:{
+  likesAndComments: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
   },
-  commentCount: {
-      fontSize: 14,
-      color: '#666',
-      marginTop: 10,
-    },
-  });
+  likeIcon: {
+    width: 20,
+    height: 20,
+    margin: 5,
+    tintColor: '#666',
+  },
+});
 
 export default HomePage;
