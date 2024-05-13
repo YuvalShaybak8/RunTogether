@@ -49,7 +49,7 @@ const BottomNavigation = () => {
   const goToHomeScreen = () => {
     setShowMenu(false);
     navigation.navigate("Home Page");
-  }
+  };
 
   const goToPostScreen = () => {
     setShowMenu(false);
@@ -64,8 +64,7 @@ const BottomNavigation = () => {
   const goToMyPostsScreen = () => {
     setShowMenu(false);
     navigation.navigate("My Posts");
-  
-  }
+  };
 
   useEffect(() => {
     Animated.timing(menuPosition, {
@@ -81,17 +80,17 @@ const BottomNavigation = () => {
         <View style={styles.bottomNavigation}>
           <TouchableOpacity onPress={goToHomeScreen}>
             <View style={styles.icon}>
-              <Feather name="home" size={22} color="#F7706EFF" />
+              <Feather name="home" size={22} color="#fff" />
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={goToPostScreen}>
             <View style={styles.icon}>
-              <Feather name="plus-circle" size={32} color="#F7706EFF" />
+              <Feather name="plus-circle" size={32} color="#fff" />
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleMenu}>
             <View style={styles.icon}>
-              <Feather name="menu" size={22} color="#F7706EFF" />
+              <Feather name="menu" size={22} color="#fff" />
             </View>
           </TouchableOpacity>
         </View>
@@ -118,7 +117,10 @@ const BottomNavigation = () => {
                 <Text style={styles.menuActionText}>Log Out</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuAction} onPress={goToMyPostsScreen}>
+            <TouchableOpacity
+              style={styles.menuAction}
+              onPress={goToMyPostsScreen}
+            >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Feather
                   name="file-text"
@@ -166,7 +168,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#F7706EFF",
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     shadowColor: "#000",
