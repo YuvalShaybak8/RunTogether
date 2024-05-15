@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import avatarImage from "../assets/avatar.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -86,59 +87,61 @@ const PostDetails = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.innerContainer}>
-        <View style={styles.userContainer}>
-          {post.userProfilePic ? (
-            <Image
-              source={{ uri: post.userProfilePic }}
-              style={styles.profilePic}
-            />
-          ) : (
-            <Image source={avatarImage} style={styles.profilePic} />
-          )}
-          <Text style={styles.userName}>{post.username}</Text>
-          <Text style={styles.postDate}>{post.postDate}</Text>
-        </View>
-        <Text style={styles.postDescription}>{post.description}</Text>
-        {post.image && (
-          <Image source={{ uri: post.image }} style={styles.postImage} />
-        )}
-        {post.location && (
-          <View style={styles.locationContainer}>
-            {post.location && (
-              <Text style={styles.locationText}>{post.location}</Text>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <View style={{ flex: 1 }}>
+        <View style={styles.innerContainer}>
+          <View style={styles.userContainer}>
+            {post.userProfilePic ? (
+              <Image
+                source={{ uri: post.userProfilePic }}
+                style={styles.profilePic}
+              />
+            ) : (
+              <Image source={avatarImage} style={styles.profilePic} />
             )}
+            <Text style={styles.userName}>{post.username}</Text>
+            <Text style={styles.postDate}>{post.postDate}</Text>
           </View>
-        )}
-        {post.likes && (
-          <Text style={styles.likeCount}>
-            {post.likes.length} Like{post.likes.length !== 1 ? "s" : ""}
-          </Text>
-        )}
-        <FlatList
-          data={post.comments}
-          renderItem={renderComment}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.commentsContainer}
-        />
+          <Text style={styles.postDescription}>{post.description}</Text>
+          {post.image && (
+            <Image source={{ uri: post.image }} style={styles.postImage} />
+          )}
+          {post.location && (
+            <View style={styles.locationContainer}>
+              {post.location && (
+                <Text style={styles.locationText}>{post.location}</Text>
+              )}
+            </View>
+          )}
+          {post.likes && (
+            <Text style={styles.likeCount}>
+              {post.likes.length} Like{post.likes.length !== 1 ? "s" : ""}
+            </Text>
+          )}
+          <FlatList
+            data={post.comments}
+            renderItem={renderComment}
+            keyExtractor={(item, index) => index.toString()}
+            style={styles.commentsContainer}
+          />
+        </View>
+        <View style={styles.commentInputContainer}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment..."
+            placeholderTextColor={"black"}
+            value={newComment}
+            onChangeText={handleCommentChange}
+          />
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={handleCommentSubmit}
+          >
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.commentInputContainer}>
-        <TextInput
-          style={styles.commentInput}
-          placeholder="Add a comment..."
-          placeholderTextColor={"black"}
-          value={newComment}
-          onChangeText={handleCommentChange}
-        />
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={handleCommentSubmit}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

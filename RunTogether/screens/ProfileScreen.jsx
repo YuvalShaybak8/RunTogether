@@ -12,13 +12,15 @@ import {
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import BottomNavigation from "../cmps/BottomNavigation";
-import client from '../backend/api/client.js';
-import { uploadService } from '../services/upload.service'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import client from "../backend/api/client.js";
+import { uploadService } from "../services/upload.service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
-  const [profileImage, setProfileImage] = useState(require("../assets/avatar.jpg"));
+  const [profileImage, setProfileImage] = useState(
+    require("../assets/avatar.jpg")
+  );
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,25 +56,27 @@ const ProfileScreen = ({navigation}) => {
 
   const fetchLoggedInUser = async () => {
     try {
-      const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
+      const currentLoggedInUserID = await AsyncStorage.getItem(
+        "loggedInUserID"
+      );
       setLoggedInUserID(currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
-      console.log('data', data);
+      console.log("data", data);
       setUsername(data.username);
       setEmail(data.email);
       setProfileImage({ uri: data.image });
       return data;
     } catch (error) {
-      console.error('Error fetching logged in user:', error);
+      console.error("Error fetching logged in user:", error);
     }
-  }
+  };
 
   const handleUpdate = async () => {
     try {
-      const response = await client.get('/user/email/' + email);
+      const response = await client.get("/user/email/" + email);
       const existingUser = response.data;
-      console.log('existingUser',existingUser)
+      console.log("existingUser", existingUser);
       if (existingUser) {
         const updatedUser = {
           _id: existingUser._id,
@@ -82,12 +86,17 @@ const ProfileScreen = ({navigation}) => {
           image: profileImage.uri || null,
         };
 
-        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        }))}`;
+        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri)
+          .then((response) => response.blob())
+          .then(
+            (blob) =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              })
+          )}`;
         const imgData = await uploadService.uploadImg(base64Img);
 
         updatedUser.image = imgData.secure_url;
@@ -95,7 +104,7 @@ const ProfileScreen = ({navigation}) => {
         await client.put(`/user/${loggedInUserID}`, updatedUser);
 
         console.log("Success: Profile updated successfully!");
-        navigation.navigate('Home Page');
+        navigation.navigate("Home Page");
       } else {
         // User with the email does not exist, create a new user
         const newUser = {
@@ -106,12 +115,17 @@ const ProfileScreen = ({navigation}) => {
         };
 
         // Upload the profile image to Cloudinary
-        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        }))}`;
+        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri)
+          .then((response) => response.blob())
+          .then(
+            (blob) =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              })
+          )}`;
         const imgData = await uploadService.uploadImg(base64Img);
 
         // Set the Cloudinary image URL as the profile image
@@ -127,16 +141,12 @@ const ProfileScreen = ({navigation}) => {
     }
   };
 
-
   return (
     <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
       <View style={styles.container}>
         <View style={styles.profileContainer}>
           <View style={styles.profileImageContainer}>
-            <Image
-              source={profileImage}
-              style={styles.profileImage}
-            />
+            <Image source={profileImage} style={styles.profileImage} />
             <TouchableOpacity
               style={styles.editIconContainer}
               onPress={handleEditProfileImage}
@@ -153,8 +163,6 @@ const ProfileScreen = ({navigation}) => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="John Doe"
-                placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
                 onChangeText={setUsername}
                 value={username}
@@ -168,9 +176,7 @@ const ProfileScreen = ({navigation}) => {
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="JohnDoe@gmail.com"
                 keyboardType="email-address"
-                placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
                 onChangeText={setEmail}
                 value={email}
@@ -185,11 +191,10 @@ const ProfileScreen = ({navigation}) => {
               <TextInput
                 style={styles.input}
                 placeholder="********"
-                keyboardType="email-address"
                 placeholderTextColor="#7C808D"
                 selectionColor="#3662AA"
                 onChangeText={setPassword}
-                value={password}
+                secureTextEntry={!passwordIsVisible}
               />
               <TouchableOpacity
                 style={styles.passwordVisibleButton}

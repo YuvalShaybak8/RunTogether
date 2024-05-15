@@ -7,12 +7,10 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
-
 import BottomNavigation from "../cmps/BottomNavigation";
 import HeaderComponent from "../cmps/HeaderComponent";
 import RenderPost from "../cmps/RenderPost";
 import avatarImage from "../assets/avatar.jpg";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
 
@@ -33,7 +31,12 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   const fetchData = async () => {
     try {
       const postsResponse = await client.get("/post");
-      const posts = postsResponse.data;
+      let posts = postsResponse.data;
+
+      // Sort posts by post date in descending order
+      posts.sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
 
       const postsWithUserData = await Promise.all(
         posts.map(async (post) => {
