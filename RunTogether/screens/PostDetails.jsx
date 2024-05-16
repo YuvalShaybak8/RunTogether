@@ -9,6 +9,9 @@ import {
   FlatList,
   ScrollView,
   KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import avatarImage from "../assets/avatar.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -80,6 +83,7 @@ const PostDetails = ({ route, navigation }) => {
         const updatedPost = response.data;
         navigation.setParams({ post: updatedPost });
         setNewComment("");
+        Keyboard.dismiss(); // Dismiss the keyboard after sending the comment
       } catch (error) {
         console.error("Error commenting on post:", error);
       }
@@ -87,61 +91,76 @@ const PostDetails = ({ route, navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <View style={{ flex: 1 }}>
-        <View style={styles.innerContainer}>
-          <View style={styles.userContainer}>
-            {post.userProfilePic ? (
-              <Image
-                source={{ uri: post.userProfilePic }}
-                style={styles.profilePic}
-              />
-            ) : (
-              <Image source={avatarImage} style={styles.profilePic} />
-            )}
-            <Text style={styles.userName}>{post.username}</Text>
-            <Text style={styles.postDate}>{post.postDate}</Text>
-          </View>
-          <Text style={styles.postDescription}>{post.description}</Text>
-          {post.image && (
-            <Image source={{ uri: post.image }} style={styles.postImage} />
-          )}
-          {post.location && (
-            <View style={styles.locationContainer}>
-              {post.location && (
-                <Text style={styles.locationText}>{post.location}</Text>
-              )}
-            </View>
-          )}
-          {post.likes && (
-            <Text style={styles.likeCount}>
-              {post.likes.length} Like{post.likes.length !== 1 ? "s" : ""}
-            </Text>
-          )}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 54 : 0}
+      >
+        <View style={{ flex: 1 }}>
           <FlatList
-            data={post.comments}
-            renderItem={renderComment}
-            keyExtractor={(item, index) => index.toString()}
-            style={styles.commentsContainer}
+            data={[post]} // Pass post as an array with a single item
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <>
+                <View style={styles.userContainer}>
+                  {item.userProfilePic ? (
+                    <Image
+                      source={{ uri: item.userProfilePic }}
+                      style={styles.profilePic}
+                    />
+                  ) : (
+                    <Image source={avatarImage} style={styles.profilePic} />
+                  )}
+                  <Text style={styles.userName}>{item.username}</Text>
+                  <Text style={styles.postDate}>{item.postDate}</Text>
+                </View>
+                <Text style={styles.postDescription}>{item.description}</Text>
+                {item.image && (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.postImage}
+                  />
+                )}
+                {item.location && (
+                  <View style={styles.locationContainer}>
+                    {item.location && (
+                      <Text style={styles.locationText}>{item.location}</Text>
+                    )}
+                  </View>
+                )}
+                {item.likes && (
+                  <Text style={styles.likeCount}>
+                    {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
+                  </Text>
+                )}
+                <FlatList
+                  data={item.comments}
+                  renderItem={renderComment}
+                  keyExtractor={(item, index) => index.toString()}
+                  style={styles.commentsContainer}
+                />
+              </>
+            )}
           />
+          <View style={styles.commentInputContainer}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Add a comment..."
+              placeholderTextColor={"black"}
+              value={newComment}
+              onChangeText={handleCommentChange}
+            />
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleCommentSubmit}
+            >
+              <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.commentInputContainer}>
-          <TextInput
-            style={styles.commentInput}
-            placeholder="Add a comment..."
-            placeholderTextColor={"black"}
-            value={newComment}
-            onChangeText={handleCommentChange}
-          />
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleCommentSubmit}
-          >
-            <Text style={styles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 
