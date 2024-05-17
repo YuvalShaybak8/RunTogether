@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -67,7 +66,7 @@ const CreatePost = ({ navigation }) => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
       >
         <View style={styles.header}>
-          <Text style={styles.headerText}>Post</Text>
+          <Text style={styles.headerText}>Create a post</Text>
         </View>
 
         <ImagePreview image={image} />
@@ -89,12 +88,14 @@ const CreatePost = ({ navigation }) => {
           setLocation={setLocation}
           handleLocationSelect={handleLocationSelect}
         />
-        <TouchableOpacity style={styles.postButton} onPress={handlePostPress}>
-          <View style={styles.icon}>
-            <Feather name="send" size={22} color="white" />
-          </View>
-          <Text style={styles.postButtonText}>Post</Text>
-        </TouchableOpacity>
+        <View style={{ position: "absolute", bottom: 40, left: 0, right: 0 }}>
+          <TouchableOpacity style={styles.postButton} onPress={handlePostPress}>
+            <View style={styles.icon}>
+              <Feather name="send" size={22} color="white" />
+            </View>
+            <Text style={styles.postButtonText}>Post</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#F3F3F6FF",
     padding: 8,
-    marginTop: 8,
+    marginTop: 0,
   },
   postButton: {
     flexDirection: "row",
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 6,
   },
   autocompleteContainer: {
     width: "100%",
