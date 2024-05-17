@@ -1,11 +1,24 @@
-import React, { useEffect } from "react";
-import { View, Text, Image, StyleSheet, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { MyPostsScreenService } from "../../services/myPostsScreen.service";
 import PostActions from "./PostActions";
 import likeIcon from "../../assets/like.png";
 import LikesAndComments from "../LikesAndComments";
+import { Feather } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import client from "../../backend/api/client.js";
+import { uploadService } from "../../services/upload.service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Post = ({
+  navigation,
   item,
   index,
   posts,
@@ -20,9 +33,84 @@ const Post = ({
   editedDescription,
   setUser,
 }) => {
+  const [postImage, setpostImage] = useState(null);
+
   useEffect(() => {
     console.log("Post rendered", [item.description]);
   }, [item.description]);
+
+  useEffect(() => {
+    if (postImage !== null) {
+      handleUpdate();
+    }
+  }, [postImage]);
+
+  const handleUpdate = async () => {
+    try {
+      console.log("postImage", postImage);
+      const response = await client.get("/user/email/" + user.email);
+      const existingUser = response.data;
+      const base64Img = `data:image/jpg;base64,${await fetch(postImage.uri)
+        .then((response) => response.blob())
+        .then(
+          (blob) =>
+            new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            })
+        )}`;
+      let imgData = await uploadService.uploadImg(base64Img);
+      if (existingUser) {
+        const updatedPosts = existingUser.posts.map((post) => {
+          if (post._id === item._id) {
+            return { ...post, image: imgData.secure_url };
+          }
+          return post;
+        });
+
+        const updatedUser = { ...existingUser, posts: updatedPosts };
+        console.log("updatedUser ", updatedUser);
+        await client.put(`/user/${user._id}`, updatedUser);
+
+        const postResponse = await client.get("/post/" + item._id);
+        const currentPost = postResponse.data;
+        console.log("imgData.secure_url", imgData.secure_url);
+        await client.put(`/post/${item._id}`, {
+          ...currentPost,
+          image: imgData.secure_url,
+        });
+
+        console.log("Success: Post image updated successfully!");
+        navigation.navigate("My Posts");
+      }
+    } catch (error) {
+      console.log("Error updating/creating user:", error);
+    }
+  };
+
+  const handleEditpostImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      console.log("picking image...", result.assets[0]);
+      setpostImage({ uri: result.assets[0].uri });
+      handleUpdate();
+    }
+  };
 
   const isLastItem = index === posts.length - 1;
   return (
@@ -77,18 +165,32 @@ const Post = ({
         <Text style={styles.postDescription}>{item.description}</Text>
       )}
       {item.image && (
-        <Image source={{ uri: item.image }} style={styles.postImage} />
+        <View>
+          <Image source={{ uri: item.image }} style={styles.postImage} />
+          <TouchableOpacity
+            style={styles.editIconContainer}
+            onPress={() => {
+              handleEditpostImage();
+            }}
+          >
+            <View>
+              <Feather name="edit-3" size={16} color="white" />
+            </View>
+          </TouchableOpacity>
+        </View>
       )}
+
       {item.location && (
         <View style={styles.locationContainer}>
           <Image
             source={require("../../assets/placeholder.png")}
             style={styles.locationIcon}
           />
+
           <Text style={styles.locationText}>{item.location}</Text>
         </View>
       )}
-      <LikesAndComments item={item} />
+      {/* <LikesAndComments item={item} /> */}
       {/* <View style={styles.likesAndComments}>
         <View style={styles.likesContainer}>
           <Image source={likeIcon} style={[styles.likeIcon]} />
@@ -209,6 +311,14 @@ const styles = StyleSheet.create({
     height: 20,
     margin: 5,
     tintColor: "#666",
+  },
+  editIconContainer: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "#F7706EFF",
+    borderRadius: 20,
+    padding: 8,
   },
 });
 

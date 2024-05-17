@@ -105,36 +105,6 @@ const ProfileScreen = ({ navigation }) => {
 
         console.log("Success: Profile updated successfully!");
         navigation.navigate("Home Page");
-      } else {
-        // User with the email does not exist, create a new user
-        const newUser = {
-          username,
-          email,
-          password,
-          profileImage: profileImage.uri || null,
-        };
-
-        // Upload the profile image to Cloudinary
-        const base64Img = `data:image/jpg;base64,${await fetch(profileImage.uri)
-          .then((response) => response.blob())
-          .then(
-            (blob) =>
-              new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-              })
-          )}`;
-        const imgData = await uploadService.uploadImg(base64Img);
-
-        // Set the Cloudinary image URL as the profile image
-        newUser.profileImage = imgData.secure_url;
-
-        // Send a POST request to create a new user
-        await client.post("/user", newUser);
-
-        console.log("Success: User created successfully!");
       }
     } catch (error) {
       console.error("Error updating/creating user:", error);

@@ -169,6 +169,7 @@ const MyPostsScreen = () => {
         data={posts}
         renderItem={({ item, index }) => (
           <Post
+            key={item._id}
             item={item}
             index={index}
             posts={posts}
@@ -177,6 +178,7 @@ const MyPostsScreen = () => {
             handleEditDescription={MyPostsScreenService.handleEditDescription}
             handleSaveDescription={MyPostsScreenService.handleSaveDescription}
             handleDeleteDescription={MyPostsScreenService.handleDeletePost}
+            handleEditImage={MyPostsScreenService.handleEditImage}
             setEditableDescription={setEditableDescription}
             setEditedDescription={setEditedDescription}
             editableDescription={editableDescription}

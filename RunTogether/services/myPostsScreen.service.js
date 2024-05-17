@@ -77,4 +77,11 @@ export const MyPostsScreenService = {
       console.error("Error deleting post:", error);
     }
   },
+
+  handleEditImage: async (postId, user, setUser) => {
+    try {
+    } catch (error) {
+      console.error("Error editing Image:", error);
+    }
+  },
 };

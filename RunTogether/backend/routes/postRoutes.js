@@ -1,30 +1,32 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
+const express = require("express");
+const jwt = require("jsonwebtoken");
 
 const {
-    createPost,
-    getAllPosts,
-    getPostsByUser,
-    updatePost,
-    deletePost,
-    likePost,
-    commentOnPost
-} = require('../controllers/postController.js');
-
+  createPost,
+  getAllPosts,
+  getPostsByUser,
+  updatePost,
+  deletePost,
+  likePost,
+  commentOnPost,
+  getPostById,
+} = require("../controllers/postController.js");
 
 const router = express.Router();
 
-router.post('/', createPost);
+router.post("/", createPost);
 
-router.get('/', getAllPosts);
+router.get("/", getAllPosts);
 
-router.get('/user/:userId', getPostsByUser);
+router.get("/:postId", getPostById);
 
-router.put('/:id', updatePost);
+router.get("/user/:userId", getPostsByUser);
 
-router.delete('/:id', deletePost);
+router.put("/:id", updatePost);
 
-router.put('/:postId/like', likePost);
+router.delete("/:id", deletePost);
 
-router.put('/:postId/comment', commentOnPost);
+router.put("/:postId/like", likePost);
+
+router.put("/:postId/comment", commentOnPost);
 module.exports = router;
