@@ -13,10 +13,29 @@ const login = async (email, password) => {
   }
 };
 
-const signup = async (email, password) => {
-  // Implement signup logic similar to login if needed
-  // const response = await client.post('/user/signup', { email, password });
-  // return response.data;
+const signup = async (username, email, password) => {
+  console.log("Signing up:", email, password);
+  try {
+    const response = await client.post("/user", {
+      username,
+      email,
+      password,
+    });
+    const { token, user } = response.data;
+    console.log(
+      "Signed up successfully:",
+      user.username,
+      user.email,
+      user._id,
+      token
+    );
+    await AsyncStorage.setItem("token", token);
+    await AsyncStorage.setItem("loggedInUserID", user._id);
+    return { success: true };
+  } catch (error) {
+    console.error("Error signing up:", error.message);
+    return { success: false, error: error.message };
+  }
 };
 
 const logout = async () => {

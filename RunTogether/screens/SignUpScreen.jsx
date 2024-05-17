@@ -12,35 +12,30 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import axios from "axios";
-import client from "../backend/api/client.js";
+import loginSignupService from "../services/loginSignup.service.js";
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   const handleSignUp = async () => {
-    try {
-      const response = await client.post("/user", {
-        username,
-        email,
-        password,
-      });
-      console.log("Sign-up successful:", response.data);
-      navigation.goBack();
-    } catch (error) {
-      console.error("Error signing up:", error.message);
-      console.info(error);
+    setLoading(true); // Show the loading indicator
+    console.log("Signing up:", username, email, password);
+    const result = await loginSignupService.signup(username, email, password);
+    setLoading(false); // Hide the loading indicator
+
+    if (result.success) {
+      navigation.navigate("Home Page");
+    } else {
+      console.error("Error signing up:", result.error);
       // Handle sign-up error, e.g., display an error message to the user
     }
-  };
-
-  const handleLoginRedirect = () => {
-    navigation.goBack();
   };
 
   const handleDismissKeyboard = () => {
@@ -115,6 +110,13 @@ const SignUpScreen = ({ navigation }) => {
                 />
               </TouchableOpacity>
             </View>
+            {loading && (
+              <ActivityIndicator
+                size="large"
+                color="#f7706d"
+                style={{ marginTop: 20 }}
+              />
+            )}
             <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
               <Text style={styles.loginButtonText}>Create your account</Text>
             </TouchableOpacity>

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { set } from "mongoose";
+import loginSignupService from "../services/loginSignup.service.js";
 
 const BottomNavigation = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -19,6 +19,8 @@ const BottomNavigation = () => {
 
   const handleLogout = async () => {
     try {
+      ``;
+      await loginSignupService.logout();
       console.log("Logout successful");
       navigation.navigate("Login");
     } catch (error) {
