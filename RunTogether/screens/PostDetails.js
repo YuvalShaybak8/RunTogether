@@ -83,7 +83,7 @@ const PostDetails = ({ route, navigation }) => {
         const updatedPost = response.data;
         navigation.setParams({ post: updatedPost });
         setNewComment("");
-        Keyboard.dismiss(); // Dismiss the keyboard after sending the comment
+        Keyboard.dismiss();
       } catch (error) {
         console.error("Error commenting on post:", error);
       }
@@ -99,7 +99,7 @@ const PostDetails = ({ route, navigation }) => {
       >
         <View style={styles.container}>
           <FlatList
-            data={[post]} // Pass post as an array with a single item
+            data={[post]}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <>
@@ -239,7 +239,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     borderRadius: 10,
     padding: 10,
-    // flex: 1,
   },
   commentAuthor: {
     fontSize: 12,
