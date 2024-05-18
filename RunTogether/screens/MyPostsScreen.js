@@ -16,9 +16,9 @@ import placeholder from "../assets/placeholder.png";
 import chat from "../assets/chat.png";
 import chatBubble from "../assets/chatbubble.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BottomNavigation from "../cmps/BottomNavigation.jsx";
-import Post from "../cmps/MyPostsScreen/Post.jsx";
-import { MyPostsScreenService } from "../services/myPostsScreen.service";
+import BottomNavigation from "../cmps/BottomNavigation.js";
+import Post from "../cmps/MyPostsScreen/Post.js";
+import { MyPostsScreenService } from "../services/myPostsScreen.service.js";
 
 const MyPostsScreen = () => {
   const [user, setUser] = useState({

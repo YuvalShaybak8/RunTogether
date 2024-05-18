@@ -12,12 +12,12 @@ import {
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
-import { Autocomplete } from "../cmps/Autocomplete";
-import { ImgUploader } from "../cmps/ImgUploader.jsx";
-import ImagePreview from "../cmps/ImagePreview.jsx";
+import { Autocomplete } from "../cmps/Autocomplete.js";
+import { ImgUploader } from "../cmps/ImgUploader.js";
+import ImagePreview from "../cmps/ImagePreview.js";
 
 import * as ImagePicker from "expo-image-picker";
-import { createPostService } from "../services/createPost.service";
+import { createPostService } from "../services/createPost.service.js";
 
 const CreatePost = ({ navigation }) => {
   const [description, setDescription] = useState("");
