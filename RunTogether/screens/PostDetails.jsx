@@ -97,7 +97,7 @@ const PostDetails = ({ route, navigation }) => {
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 54 : 0}
       >
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
           <FlatList
             data={[post]} // Pass post as an array with a single item
             keyExtractor={(item) => item._id}
@@ -166,10 +166,6 @@ const PostDetails = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-  },
-  innerContainer: {
     flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 20,

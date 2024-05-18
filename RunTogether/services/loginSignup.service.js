@@ -14,7 +14,7 @@ const login = async (email, password) => {
 };
 
 const signup = async (username, email, password) => {
-  console.log("Signing up:", email, password);
+  console.log("Signing up:", username, email, password);
   try {
     const response = await client.post("/user", {
       username,
