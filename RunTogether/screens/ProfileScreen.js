@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -25,6 +26,7 @@ const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loggedInUserID, setLoggedInUserID] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchLoggedInUser();
@@ -73,6 +75,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const handleUpdate = async () => {
+    setLoading(true);
     try {
       const response = await client.get("/user/email/" + email);
       const existingUser = response.data;
@@ -108,6 +111,8 @@ const ProfileScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error("Error updating/creating user:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,8 +184,16 @@ const ProfileScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
-          <Text style={styles.updateButtonText}>Update</Text>
+        <TouchableOpacity
+          style={styles.updateButton}
+          onPress={handleUpdate}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.updateButtonText}>Update</Text>
+          )}
         </TouchableOpacity>
         <BottomNavigation />
       </View>
@@ -279,6 +292,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 60,
     marginHorizontal: 38,
+    flexDirection: "row",
+    justifyContent: "center",
   },
   updateButtonText: {
     color: "#fff",

@@ -9,6 +9,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
@@ -24,6 +25,7 @@ const CreatePost = ({ navigation }) => {
   const [location, setLocation] = useState("");
   const [image, setImage] = useState(null);
   const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -36,8 +38,20 @@ const CreatePost = ({ navigation }) => {
     })();
   }, []);
 
-  const handlePostPress = () => {
-    createPostService.handlePostPress(description, location, image, navigation);
+  const handlePostPress = async () => {
+    setLoading(true);
+    try {
+      await createPostService.handlePostPress(
+        description,
+        location,
+        image,
+        navigation
+      );
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLocationSelect = (details) => {
@@ -96,11 +110,18 @@ const CreatePost = ({ navigation }) => {
         <TouchableOpacity
           style={[styles.postButton, { marginBottom: 20 }]}
           onPress={handlePostPress}
+          disabled={loading}
         >
           <View style={styles.icon}>
-            <Feather name="send" size={22} color="white" />
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Feather name="send" size={22} color="white" />
+            )}
           </View>
-          <Text style={styles.postButtonText}>Post</Text>
+          <Text style={styles.postButtonText}>
+            {loading ? "Posting..." : "Post"}
+          </Text>
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
@@ -205,7 +226,7 @@ const styles = StyleSheet.create({
   },
   autocompleteContainer: {
     width: "100%",
-    zIndex: "999",
+    zIndex: 999,
     borderRadius: 10,
   },
 });

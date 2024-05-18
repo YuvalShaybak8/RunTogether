@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { MyPostsScreenService } from "../../services/myPostsScreen.service.js";
 import PostActions from "./PostActions.js";
@@ -33,7 +34,8 @@ const Post = ({
   editedDescription,
   setUser,
 }) => {
-  const [postImage, setpostImage] = useState(null);
+  const [postImage, setPostImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("Post rendered", [item.description]);
@@ -46,6 +48,7 @@ const Post = ({
   }, [postImage]);
 
   const handleUpdate = async () => {
+    setLoading(true);
     try {
       console.log("postImage", postImage);
       const response = await client.get("/user/email/" + user.email);
@@ -87,10 +90,12 @@ const Post = ({
       }
     } catch (error) {
       console.log("Error updating/creating user:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEditpostImage = async () => {
+  const handleEditPostImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== "granted") {
@@ -107,8 +112,7 @@ const Post = ({
 
     if (!result.cancelled) {
       console.log("picking image...", result.assets[0]);
-      setpostImage({ uri: result.assets[0].uri });
-      handleUpdate();
+      setPostImage({ uri: result.assets[0].uri });
     }
   };
 
@@ -169,13 +173,13 @@ const Post = ({
           <Image source={{ uri: item.image }} style={styles.postImage} />
           <TouchableOpacity
             style={styles.editIconContainer}
-            onPress={() => {
-              handleEditpostImage();
-            }}
+            onPress={handleEditPostImage}
           >
-            <View>
+            {loading ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
               <Feather name="edit-3" size={16} color="white" />
-            </View>
+            )}
           </TouchableOpacity>
         </View>
       )}
@@ -190,21 +194,6 @@ const Post = ({
           <Text style={styles.locationText}>{item.location}</Text>
         </View>
       )}
-      {/* <LikesAndComments item={item} /> */}
-      {/* <View style={styles.likesAndComments}>
-        <View style={styles.likesContainer}>
-          <Image source={likeIcon} style={[styles.likeIcon]} />
-          <Text style={[styles.likeCount]}>
-            {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
-          </Text>
-        </View>
-        <View style={styles.commentsContainer}>
-          <Text style={styles.commentCount}>
-            {item.comments.length} comment
-            {item.comments.length !== 1 ? "s" : ""}
-          </Text>
-        </View>
-      </View> */}
     </View>
   );
 };

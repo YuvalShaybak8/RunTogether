@@ -1,24 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  SafeAreaView,
-  TextInput,
-} from "react-native";
-import client from "../backend/api/client.js";
+import { View, FlatList, StyleSheet } from "react-native";
 import avatarImage from "../assets/avatar.jpg";
-import placeholder from "../assets/placeholder.png";
-import chat from "../assets/chat.png";
-import chatBubble from "../assets/chatbubble.png";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavigation from "../cmps/BottomNavigation.js";
 import Post from "../cmps/MyPostsScreen/Post.js";
 import { MyPostsScreenService } from "../services/myPostsScreen.service.js";
+import { useNavigation } from "@react-navigation/native";
 
 const MyPostsScreen = () => {
   const [user, setUser] = useState({
@@ -37,113 +23,11 @@ const MyPostsScreen = () => {
   );
   const [editableDescription, setEditableDescription] = useState(null);
   const [editedDescription, setEditedDescription] = useState("");
+  const navigation = useNavigation();
 
   useEffect(() => {
-    // fetchUser();
     fetchUserData();
   }, [user.posts]);
-
-  // const fetchUser = async () => {
-  //   try {
-  //     const currentLoggedInUserID = await AsyncStorage.getItem('loggedInUserID');
-  //     const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
-  //     const { data } = userResponse;
-  //     setUser(data);
-  //     setPosts(data.posts);
-  //     setProfileImage({ uri: data.image });
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching user posts:', error);
-  //   }
-  // }
-
-  // const formatPostDate = (dateString) => {
-  //   const date = new Date(dateString);
-  //   const options = {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: '2-digit',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   };
-  //   return date.toLocaleString('en-US', options);
-  // };
-
-  // const handleEditDescription = (postId, description) => {
-  //   setEditableDescription(postId);
-  //   setEditedDescription(description);
-  // };
-
-  // const handleSaveDescription = async (postId, editedDescription) => {
-  //   try {
-  //     const updatedPosts = user.posts.map(post =>
-  //       post._id === postId ? { ...post, description: editedDescription } : post
-  //     );
-  //     setUser(user => ({ ...user, posts: updatedPosts }));
-
-  //     await client.put(`/post/${postId}`, { description: editedDescription });
-
-  //     await client.put(`/user/${user._id}`, { posts: updatedPosts });
-
-  //     console.log(`Saving description for post ${postId}: ${editedDescription}`);
-  //     setEditableDescription(null);
-  //   } catch (error) {
-  //     console.error('Error saving description:', error);
-  //   }
-  // };
-
-  // const renderPost = ({ item, index }) => {
-  //   const isLastItem = index === posts.length - 1;
-
-  //   return (<KeyboardAvoidingView style={styles.container} key={item._id} behavior="padding">
-  //     <SafeAreaView style={styles.container}>
-  //     <View style={[styles.postContainer, isLastItem && styles.postContainerLast]}>
-  //         <View style={styles.userContainer}>
-  //           <Image source={profileImage || avatarImage} style={styles.profilePic} />
-  //           <View style={styles.userInfo}>
-  //             <Text style={styles.username}>{user.username}</Text>
-  //             {console.log('item.createdAt', item)}
-  //             <Text style={styles.postDate}>{formatPostDate(item.createdAt)}</Text>
-  //           </View>
-  //           <TouchableOpacity style={styles.editButton} onPress={() => handleEditDescription(item._id)}>
-  //             <Text style={styles.editButtonText}>Edit</Text>
-  //           </TouchableOpacity>
-  //         </View>
-  //         {
-  //           editableDescription === item._id ? (
-  //             <TextInput
-  //               style={styles.editableDescription}
-  //               value={editedDescription}
-  //               onChangeText={(text) => setEditedDescription(text)}
-  //             />
-  //           ) : (
-  //             <Text style={styles.postDescription}>{item.description}</Text>
-  //           )
-  //         }
-  //         {item.image && <Image source={{ uri: item.image }} style={styles.postImage} />}
-  //         {item.location && (
-  //           <View style={styles.locationContainer}>
-  //             <Image source={placeholder} style={styles.locationIcon} />
-  //             <Text style={styles.locationText}>{item.location}</Text>
-  //           </View>
-  //         )}
-  //         <View style={styles.actionContainer}>
-  //           <TouchableOpacity>
-  //             <Image source={chat} style={styles.chatBubble} />
-  //           </TouchableOpacity>
-  //           <View style={styles.saveDeleteBtns}>
-  //             <TouchableOpacity style={styles.actionButton} onPress={() => handleSaveDescription(item._id, editedDescription)}>
-  //               <Text style={styles.saveButtonText}>Save</Text>
-  //             </TouchableOpacity>
-  //             <TouchableOpacity style={styles.actionButton} onPress={() => handleSaveDescription(item._id, editedDescription)}>
-  //               <Text style={styles.saveButtonText}>Delete</Text>
-  //             </TouchableOpacity>
-  //           </View>
-  //         </View>
-  //       </View>
-  //     </SafeAreaView>
-  //   </KeyboardAvoidingView>
-  // )};
 
   const fetchUserData = async () => {
     const userData = await MyPostsScreenService.fetchUser();
@@ -152,21 +36,12 @@ const MyPostsScreen = () => {
     setProfileImage({ uri: userData.image });
   };
 
-  // return (
-  //   <View style={styles.container}>
-  //     <FlatList
-  //       data={posts}
-  //       renderItem={renderPost}
-  //       keyExtractor={(item) => item._id}
-  //     />
-  //     <BottomNavigation style={styles.bottomNavigation} />
-  //   </View>
-  // );
-
   return (
     <View style={styles.container}>
       <FlatList
-        data={posts}
+        data={user.posts.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        )}
         renderItem={({ item, index }) => (
           <Post
             key={item._id}
@@ -175,6 +50,7 @@ const MyPostsScreen = () => {
             posts={posts}
             user={user}
             profileImage={profileImage}
+            navigation={navigation}
             handleEditDescription={MyPostsScreenService.handleEditDescription}
             handleSaveDescription={MyPostsScreenService.handleSaveDescription}
             handleDeleteDescription={MyPostsScreenService.handleDeletePost}
