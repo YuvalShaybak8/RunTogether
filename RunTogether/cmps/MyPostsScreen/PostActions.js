@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
-  TextInput,
   TouchableOpacity,
   Text,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
@@ -17,6 +17,31 @@ const PostActions = ({
   editedDescription,
   setEditedDescription,
 }) => {
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const onSavePress = async () => {
+    setSaveLoading(true);
+    try {
+      await handleSaveDescription();
+    } catch (error) {
+      console.error("Error saving description:", error);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const onDeletePress = async () => {
+    setDeleteLoading(true);
+    try {
+      await handleDeletePost();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   return (
     <View style={styles.actionContainer}>
       <View style={styles.saveDeleteBtns}>
@@ -24,15 +49,25 @@ const PostActions = ({
           <>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={handleSaveDescription}
+              onPress={onSavePress}
+              disabled={saveLoading}
             >
-              <Text style={styles.saveButtonText}>Save</Text>
+              {saveLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.saveButtonText}>Save</Text>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={handleDeletePost}
+              onPress={onDeletePress}
+              disabled={deleteLoading}
             >
-              <Text style={styles.saveButtonText}>Delete</Text>
+              {deleteLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.saveButtonText}>Delete</Text>
+              )}
             </TouchableOpacity>
           </>
         ) : (
@@ -59,6 +94,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7706E",
     marginHorizontal: 10,
     borderRadius: 5,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   saveButtonText: {
     fontSize: 16,
