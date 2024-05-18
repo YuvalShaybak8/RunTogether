@@ -1,7 +1,5 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import likeIcon from "../assets/like.png";
-import fullLikeIcon from "../assets/like_full.png";
 import avatarImage from "../assets/avatar.jpg";
 import LikesAndComments from "./LikesAndComments";
 
@@ -21,16 +19,16 @@ const RenderPost = ({
         style={[styles.postContainer, isLastItem && styles.postContainerLast]}
       >
         <View style={styles.userContainer}>
-          {item.userProfilePic ? (
-            <Image
-              source={{ uri: item.userProfilePic }}
-              style={styles.profilePic}
-            />
-          ) : (
-            <Image source={avatarImage} style={styles.profilePic} />
-          )}
-          <Text style={styles.userName}>{item.username}</Text>
-          <Text style={styles.postDate}>{item.postDate}</Text>
+          <Image
+            source={
+              item.userProfilePic ? { uri: item.userProfilePic } : avatarImage
+            }
+            style={styles.profilePic}
+          />
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{item.username}</Text>
+            <Text style={styles.postDate}>{item.postDate}</Text>
+          </View>
         </View>
         <Text style={styles.postDescription}>{item.description}</Text>
         {item.image && (
@@ -38,9 +36,7 @@ const RenderPost = ({
         )}
         {item.location && (
           <View style={styles.locationContainer}>
-            {item.location && (
-              <Text style={styles.locationText}>{item.location}</Text>
-            )}
+            <Text style={styles.locationText}>{item.location}</Text>
           </View>
         )}
         <LikesAndComments
@@ -109,10 +105,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
   },
+  userInfo: {
+    marginLeft: 10,
+  },
   userName: {
     fontWeight: "bold",
     fontSize: 16,
-    marginHorizontal: 8,
     color: "#333",
   },
   postDate: {
@@ -137,31 +135,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 10,
-  },
-  likeCount: {
-    fontSize: 14,
-    color: "#666",
-  },
-  likesContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  commentsContainer: {},
-  commentCount: {
-    fontSize: 14,
-    color: "#666",
-    marginRight: 10,
-  },
-  likesAndComments: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  likeIcon: {
-    width: 20,
-    height: 20,
-    margin: 5,
-    tintColor: "#666",
   },
 });
 
