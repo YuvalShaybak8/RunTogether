@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { uploadService } from "../services/upload.service";
 
@@ -15,32 +21,17 @@ export function ImgUploader({ onUploaded = null }) {
         aspect: [4, 3],
         base64: true,
       });
-
-      // Check if the response is valid and contains assets
-      if (
-        !response ||
-        response.canceled ||
-        !response.assets ||
-        !response.assets.length
-      ) {
+      const { uri } = response.assets[0];
+      if (response.canceled) {
         setIsUploading(false);
         return;
       }
-
-      const { uri, base64 } = response.assets[0];
       setSelectedImage({ localUri: uri });
-
-      let base64Img = `data:image/jpg;base64,${base64}`;
+      let base64Img = `data:image/jpg;base64,${response.assets[0].base64}`;
       const imgData = await uploadService.uploadImg(base64Img);
       setIsUploading(false);
       console.log("imgData", imgData);
-
-      // Ensure imgData has secure_url
-      if (imgData && imgData.secure_url) {
-        onUploaded && onUploaded({ imgUrl: imgData.secure_url });
-      } else {
-        throw new Error("Invalid image data from upload service");
-      }
+      onUploaded && onUploaded({ imgUrl: imgData.secure_url });
     } catch (error) {
       setIsUploading(false);
       console.error("Failed to upload image", error);
@@ -50,28 +41,25 @@ export function ImgUploader({ onUploaded = null }) {
   const uploadImg = () => selectImage(ImagePicker.launchImageLibraryAsync);
   const takePhoto = () => selectImage(ImagePicker.launchCameraAsync);
 
-  const getUploadLabel = () => {
-    return isUploading ? "Uploading..." : "Upload your photo";
-  };
-
-  const getPhotoLabel = () => {
-    return isUploading ? "Uploading..." : "Take a photo";
-  };
-
   return (
     <View style={styles.container}>
+      {isUploading && (
+        <View style={styles.activityIndicatorContainer}>
+          <ActivityIndicator size="large" color="#F7706EFF" />
+        </View>
+      )}
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, styles.uploadButton]}
           onPress={uploadImg}
         >
-          <Text style={styles.buttonText}>{getUploadLabel()}</Text>
+          <Text style={styles.buttonText}>Upload your photo</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.photoButton]}
           onPress={takePhoto}
         >
-          <Text style={styles.buttonText}>{getPhotoLabel()}</Text>
+          <Text style={styles.buttonText}>Take a photo</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -80,8 +68,9 @@ export function ImgUploader({ onUploaded = null }) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 0,
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -107,5 +96,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7706EFF",
     marginLeft: 10,
     flex: 1,
+  },
+  activityIndicatorContainer: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -22,13 +22,7 @@ const signup = async (username, email, password) => {
       password,
     });
     const { token, user } = response.data;
-    console.log(
-      "Signed up successfully:",
-      user.username,
-      user.email,
-      user._id,
-      token
-    );
+
     await AsyncStorage.setItem("token", token);
     await AsyncStorage.setItem("loggedInUserID", user._id);
     return { success: true };
@@ -47,8 +41,19 @@ const logout = async () => {
   }
 };
 
+const isLoggedIn = async () => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    return token !== null;
+  } catch (error) {
+    console.error("Error checking login status:", error);
+    return false;
+  }
+};
+
 export default {
   login,
   signup,
   logout,
+  isLoggedIn,
 };
