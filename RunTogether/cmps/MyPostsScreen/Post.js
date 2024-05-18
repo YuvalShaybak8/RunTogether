@@ -7,14 +7,14 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { MyPostsScreenService } from "../../services/myPostsScreen.service";
-import PostActions from "./PostActions";
+import { MyPostsScreenService } from "../../services/myPostsScreen.service.js";
+import PostActions from "./PostActions.js";
 import likeIcon from "../../assets/like.png";
-import LikesAndComments from "../LikesAndComments";
+import LikesAndComments from "../LikesAndComments.js";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import client from "../../backend/api/client.js";
-import { uploadService } from "../../services/upload.service";
+import { uploadService } from "../../services/upload.service.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Post = ({

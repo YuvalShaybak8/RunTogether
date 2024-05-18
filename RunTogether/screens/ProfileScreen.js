@@ -11,9 +11,9 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import BottomNavigation from "../cmps/BottomNavigation";
+import BottomNavigation from "../cmps/BottomNavigation.js";
 import client from "../backend/api/client.js";
-import { uploadService } from "../services/upload.service";
+import { uploadService } from "../services/upload.service.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ProfileScreen = ({ navigation }) => {

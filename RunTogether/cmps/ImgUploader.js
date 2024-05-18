@@ -15,17 +15,32 @@ export function ImgUploader({ onUploaded = null }) {
         aspect: [4, 3],
         base64: true,
       });
-      const { uri } = response.assets[0];
-      if (response.canceled) {
+
+      // Check if the response is valid and contains assets
+      if (
+        !response ||
+        response.canceled ||
+        !response.assets ||
+        !response.assets.length
+      ) {
         setIsUploading(false);
         return;
       }
+
+      const { uri, base64 } = response.assets[0];
       setSelectedImage({ localUri: uri });
-      let base64Img = `data:image/jpg;base64,${response.assets[0].base64}`;
+
+      let base64Img = `data:image/jpg;base64,${base64}`;
       const imgData = await uploadService.uploadImg(base64Img);
       setIsUploading(false);
       console.log("imgData", imgData);
-      onUploaded && onUploaded({ imgUrl: imgData.secure_url });
+
+      // Ensure imgData has secure_url
+      if (imgData && imgData.secure_url) {
+        onUploaded && onUploaded({ imgUrl: imgData.secure_url });
+      } else {
+        throw new Error("Invalid image data from upload service");
+      }
     } catch (error) {
       setIsUploading(false);
       console.error("Failed to upload image", error);

@@ -12,12 +12,12 @@ import {
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
-import { Autocomplete } from "../cmps/Autocomplete";
-import { ImgUploader } from "../cmps/ImgUploader.jsx";
-import ImagePreview from "../cmps/ImagePreview.jsx";
+import { Autocomplete } from "../cmps/Autocomplete.js";
+import { ImgUploader } from "../cmps/ImgUploader.js";
+import ImagePreview from "../cmps/ImagePreview.js";
 
 import * as ImagePicker from "expo-image-picker";
-import { createPostService } from "../services/createPost.service";
+import { createPostService } from "../services/createPost.service.js";
 
 const CreatePost = ({ navigation }) => {
   const [description, setDescription] = useState("");
@@ -60,43 +60,49 @@ const CreatePost = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior="position"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
-      >
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Create a post</Text>
-        </View>
+      <View style={styles.container}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior="position"
+          keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
+        >
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Create a post</Text>
+          </View>
 
-        <ImagePreview image={image} />
+          <ImagePreview image={image} />
 
-        <View style={styles.buttonContainer}>
-          <ImgUploader onUploaded={onUploaded} />
-        </View>
+          <View style={styles.buttonContainer}>
+            <ImgUploader onUploaded={onUploaded} />
+          </View>
 
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={[styles.input, styles.textarea]}
-          placeholder="Input description"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-        <Autocomplete
-          location={location}
-          setLocation={setLocation}
-          handleLocationSelect={handleLocationSelect}
-        />
-        <View style={{ position: "absolute", bottom: 40, left: 0, right: 0 }}>
-          <TouchableOpacity style={styles.postButton} onPress={handlePostPress}>
-            <View style={styles.icon}>
-              <Feather name="send" size={22} color="white" />
-            </View>
-            <Text style={styles.postButtonText}>Post</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={[styles.input, styles.textarea]}
+            placeholder="Input description"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            blurOnSubmit={true} // Add this line
+            onSubmitEditing={handleDismissKeyboard}
+          />
+          <Autocomplete
+            location={location}
+            setLocation={setLocation}
+            handleLocationSelect={handleLocationSelect}
+          />
+        </KeyboardAvoidingView>
+
+        <TouchableOpacity
+          style={[styles.postButton, { marginBottom: 20 }]}
+          onPress={handlePostPress}
+        >
+          <View style={styles.icon}>
+            <Feather name="send" size={22} color="white" />
+          </View>
+          <Text style={styles.postButtonText}>Post</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

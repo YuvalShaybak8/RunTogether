@@ -7,9 +7,9 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
-import BottomNavigation from "../cmps/BottomNavigation";
-import HeaderComponent from "../cmps/HeaderComponent";
-import RenderPost from "../cmps/RenderPost";
+import BottomNavigation from "../cmps/BottomNavigation.js";
+import HeaderComponent from "../cmps/HeaderComponent.js";
+import RenderPost from "../cmps/RenderPost.js";
 import avatarImage from "../assets/avatar.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
@@ -119,7 +119,9 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
       });
       const updatedPost = response.data;
       const updatedPosts = posts.map((post) =>
-        post._id === updatedPost._id ? updatedPost : post
+        post._id === updatedPost._id
+          ? { ...post, likes: updatedPost.likes }
+          : post
       );
       setPosts(updatedPosts);
       updateLikedPosts(updatedPost._id);
