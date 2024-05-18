@@ -106,17 +106,19 @@ const CreatePost = ({ navigation }) => {
           />
         </KeyboardAvoidingView>
 
+        {loading && (
+          <View style={styles.spinnerContainer}>
+            <ActivityIndicator size="large" color="#F7706EFF" />
+          </View>
+        )}
+
         <TouchableOpacity
           style={[styles.postButton, { marginBottom: 20 }]}
           onPress={handlePostPress}
           disabled={loading}
         >
           <View style={styles.icon}>
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Feather name="send" size={22} color="white" />
-            )}
+            <Feather name="send" size={22} color="white" />
           </View>
           <Text style={styles.postButtonText}>
             {loading ? "Posting..." : "Post"}
@@ -199,25 +201,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  uploadButton: {
-    flexDirection: "row",
-    width: "45%",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    height: 40,
-    borderColor: "gray",
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    backgroundColor: "#ff5252",
-    marginRight: 10,
-  },
-  uploadButtonText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
-  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -227,6 +210,10 @@ const styles = StyleSheet.create({
     width: "100%",
     zIndex: 999,
     borderRadius: 10,
+  },
+  spinnerContainer: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 export default CreatePost;

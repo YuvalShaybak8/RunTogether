@@ -31,7 +31,7 @@ export default function App() {
 
   console.log("isLoggedIn:", isLoggedIn);
   if (isLoggedIn === null) {
-    return null; // Add a loading state here if needed
+    return null;
   }
 
   return (

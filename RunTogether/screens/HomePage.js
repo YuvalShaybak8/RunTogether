@@ -163,7 +163,9 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
           navigation={navigation}
         />
         <FlatList
-          data={posts}
+          data={posts.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )}
           renderItem={renderPost}
           keyExtractor={(item) => item._id}
           refreshControl={
