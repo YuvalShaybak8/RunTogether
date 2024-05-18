@@ -16,6 +16,7 @@ import {
 import { Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import loginSignupService from "../services/loginSignup.service.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -26,6 +27,10 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
+      console.log(
+        "loggedInUserID ",
+        await AsyncStorage.getItem("Login:     loggedInUserID")
+      );
       const { token, user } = await loginSignupService.login(email, password);
       console.log("Login successful:", token, user);
       navigation.navigate("Home Page");

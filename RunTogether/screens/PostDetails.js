@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  ScrollView,
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
@@ -254,7 +253,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 60,
-    paddingHorizontal: 15,
   },
   commentInput: {
     flex: 1,

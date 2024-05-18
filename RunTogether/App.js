@@ -18,8 +18,9 @@ export default function App() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
+      const loggedInUserID = await AsyncStorage.getItem("loggedInUserID");
+      console.log("loggedInUserID:", loggedInUserID);
+      if (loggedInUserID) {
         setIsLoggedIn(true);
       } else {
         setIsLoggedIn(false);
@@ -28,13 +29,14 @@ export default function App() {
     checkLoginStatus();
   }, []);
 
+  console.log("isLoggedIn:", isLoggedIn);
   if (isLoggedIn === null) {
-    return null;
+    return null; // Add a loading state here if needed
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={isLoggedIn ? "Home Page" : "Login"}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -45,35 +47,31 @@ export default function App() {
           component={SignUpScreen}
           options={{ headerTitle: "" }}
         />
-        {isLoggedIn && (
-          <>
-            <Stack.Screen
-              name="Home Page"
-              component={HomePage}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Create Post"
-              component={CreatePost}
-              options={{ headerTitle: "" }}
-            />
-            <Stack.Screen
-              name="Profile Details"
-              component={ProfileScreen}
-              options={{ headerTitle: "" }}
-            />
-            <Stack.Screen
-              name="My Posts"
-              component={MyPostsScreen}
-              options={{ headerTitle: "My Posts" }}
-            />
-            <Stack.Screen
-              name="PostDetails"
-              component={PostDetails}
-              options={{ headerTitle: "" }}
-            />
-          </>
-        )}
+        <Stack.Screen
+          name="Home Page"
+          component={HomePage}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Create Post"
+          component={CreatePost}
+          options={{ headerTitle: "" }}
+        />
+        <Stack.Screen
+          name="Profile Details"
+          component={ProfileScreen}
+          options={{ headerTitle: "" }}
+        />
+        <Stack.Screen
+          name="My Posts"
+          component={MyPostsScreen}
+          options={{ headerTitle: "My Posts" }}
+        />
+        <Stack.Screen
+          name="PostDetails"
+          component={PostDetails}
+          options={{ headerTitle: "" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
