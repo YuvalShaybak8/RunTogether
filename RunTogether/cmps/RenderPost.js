@@ -44,34 +44,6 @@ const RenderPost = ({
           toggleLike={toggleLike}
           isPostLiked={isPostLiked}
         />
-        {/* <View style={styles.likesAndComments}>
-          <TouchableOpacity
-            onPress={() => toggleLike(item._id)}
-            style={styles.likesContainer}
-          >
-            <Image
-              source={isPostLiked(item._id) ? fullLikeIcon : likeIcon}
-              style={[
-                styles.likeIcon,
-                { tintColor: isPostLiked(item._id) ? "#0866ff" : "#666" },
-              ]}
-            />
-            <Text
-              style={[
-                styles.likeCount,
-                { color: isPostLiked(item._id) ? "#0866ff" : "#666" },
-              ]}
-            >
-              {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
-            </Text>
-          </TouchableOpacity>
-          <View style={styles.commentsContainer}>
-            <Text style={styles.commentCount}>
-              {item.comments.length} comment
-              {item.comments.length !== 1 ? "s" : ""}
-            </Text>
-          </View>
-        </View> */}
       </View>
     </TouchableOpacity>
   );
