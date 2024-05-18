@@ -1,11 +1,7 @@
 import "react-native-get-random-values";
 import React, { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import loginSignupService from "./services/loginSignup.service"; // import your loginSignup service
-
 import LoginScreen from "./screens/LoginScreen";
 import HomePage from "./screens/HomePage";
 import SignUpScreen from "./screens/SignUpScreen";
@@ -13,35 +9,43 @@ import CreatePost from "./screens/CreatePost";
 import ProfileScreen from "./screens/ProfileScreen";
 import MyPostsScreen from "./screens/MyPostsScreen";
 import PostDetails from "./screens/PostDetails";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [userToken, setUserToken] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   useEffect(() => {
-    const checkUserToken = async () => {
-      const loggedIn = await loginSignupService.isLoggedIn();
-      setUserToken(loggedIn);
-      setLoading(false);
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
     };
-
-    checkUserToken();
+    checkLoginStatus();
   }, []);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#F7706EFF" />
-      </View>
-    );
+  if (isLoggedIn === null) {
+    return null;
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {userToken ? (
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Sign Up"
+          component={SignUpScreen}
+          options={{ headerTitle: "" }}
+        />
+        {isLoggedIn && (
           <>
             <Stack.Screen
               name="Home Page"
@@ -66,19 +70,6 @@ export default function App() {
             <Stack.Screen
               name="PostDetails"
               component={PostDetails}
-              options={{ headerTitle: "" }}
-            />
-          </>
-        ) : (
-          <>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Sign Up"
-              component={SignUpScreen}
               options={{ headerTitle: "" }}
             />
           </>
