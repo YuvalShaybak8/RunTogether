@@ -33,9 +33,8 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
       const postsResponse = await client.get("/post");
       let posts = postsResponse.data;
 
-      // Sort posts by post date in descending order
       posts.sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(a.createdAt) - new Date(b.createdAt);
       });
 
       const postsWithUserData = await Promise.all(

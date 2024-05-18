@@ -22,19 +22,18 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    setLoading(true); // Show the loading indicator
+    setLoading(true);
     console.log("Signing up:", username, email, password);
     const result = await loginSignupService.signup(username, email, password);
-    setLoading(false); // Hide the loading indicator
+    setLoading(false);
 
     if (result.success) {
       navigation.navigate("Home Page");
     } else {
       console.error("Error signing up:", result.error);
-      // Handle sign-up error, e.g., display an error message to the user
     }
   };
 
@@ -82,8 +81,8 @@ const SignUpScreen = ({ navigation }) => {
                 selectionColor="#3662AA"
                 onChangeText={setEmail}
                 value={email}
-                autoCorrect={false} // Disable auto-correction
-                autoCapitalize="none" // Disable auto-capitalization
+                autoCorrect={false}
+                autoCapitalize="none"
               />
             </View>
             <View style={styles.inputContainer}>
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    borderBottomWidth: 0, // Set to 0 to remove the underline
+    borderBottomWidth: 0,
   },
   passwordVisibleButton: {
     position: "absolute",

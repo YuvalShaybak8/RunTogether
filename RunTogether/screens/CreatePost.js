@@ -16,7 +16,6 @@ import { Feather } from "@expo/vector-icons";
 import { Autocomplete } from "../cmps/Autocomplete.js";
 import { ImgUploader } from "../cmps/ImgUploader.js";
 import ImagePreview from "../cmps/ImagePreview.js";
-
 import * as ImagePicker from "expo-image-picker";
 import { createPostService } from "../services/createPost.service.js";
 
@@ -97,7 +96,7 @@ const CreatePost = ({ navigation }) => {
             value={description}
             onChangeText={setDescription}
             multiline
-            blurOnSubmit={true} // Add this line
+            blurOnSubmit={true}
             onSubmitEditing={handleDismissKeyboard}
           />
           <Autocomplete
