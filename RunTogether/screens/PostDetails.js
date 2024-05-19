@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -21,13 +21,21 @@ const PostDetails = ({ route, navigation }) => {
   const [newComment, setNewComment] = useState("");
   const [users, setUsers] = useState({});
 
+  useEffect(() => {
+    fetchUserData(post.user);
+    post.comments.forEach((comment) => {
+      fetchUserData(comment.user);
+    });
+  }, [post]);
+
   const fetchUserData = async (userId) => {
+    if (users[userId]) return;
     try {
       const response = await client.get(`/user/${userId}`);
       const userData = response.data;
       setUsers((prevUsers) => ({ ...prevUsers, [userId]: userData }));
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.log("Error fetching user data:", error);
     }
   };
 
@@ -36,7 +44,6 @@ const PostDetails = ({ route, navigation }) => {
     const user = users[userId];
 
     if (!user) {
-      fetchUserData(userId);
       return (
         <View style={styles.commentContainer}>
           <Image
@@ -89,6 +96,8 @@ const PostDetails = ({ route, navigation }) => {
     }
   };
 
+  const user = users[post.user];
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -103,15 +112,17 @@ const PostDetails = ({ route, navigation }) => {
             renderItem={({ item }) => (
               <>
                 <View style={styles.userContainer}>
-                  {item.userProfilePic ? (
+                  {user ? (
                     <Image
-                      source={{ uri: item.userProfilePic }}
+                      source={{ uri: user.image }}
                       style={styles.profilePic}
                     />
                   ) : (
                     <Image source={avatarImage} style={styles.profilePic} />
                   )}
-                  <Text style={styles.userName}>{item.username}</Text>
+                  <Text style={styles.userName}>
+                    {user ? user.username : "Loading..."}
+                  </Text>
                   <Text style={styles.postDate}>{item.postDate}</Text>
                 </View>
                 <Text style={styles.postDescription}>{item.description}</Text>
@@ -123,9 +134,7 @@ const PostDetails = ({ route, navigation }) => {
                 )}
                 {item.location && (
                   <View style={styles.locationContainer}>
-                    {item.location && (
-                      <Text style={styles.locationText}>{item.location}</Text>
-                    )}
+                    <Text style={styles.locationText}>{item.location}</Text>
                   </View>
                 )}
                 {item.likes && (

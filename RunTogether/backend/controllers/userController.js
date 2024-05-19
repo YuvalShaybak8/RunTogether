@@ -46,12 +46,10 @@ async function getUserByID(req, res) {
   }
 }
 
-// Get user by Email
-// Get user by Email
 async function getUserByEmail(req, res) {
   try {
-    const { userEmail } = req.params; // Change to userEmail
-    const user = await UserModel.findOne({ email: userEmail }); // Use findOne with email field
+    const { userEmail } = req.params;
+    const user = await UserModel.findOne({ email: userEmail });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

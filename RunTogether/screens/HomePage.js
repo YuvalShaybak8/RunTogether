@@ -59,7 +59,7 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
               postDate,
             };
           } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.log("Error fetching user data:", error);
             return {
               ...post,
               userProfilePic: null,
@@ -71,7 +71,7 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
       );
       setPosts(postsWithUserData);
     } catch (error) {
-      console.error("Error fetching posts:", error);
+      console.log("Error fetching posts:", error);
     }
   };
 
