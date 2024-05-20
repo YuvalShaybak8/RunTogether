@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -13,6 +13,7 @@ import RenderPost from "../cmps/RenderPost.js";
 import avatarImage from "../assets/avatar.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
+import { useFocusEffect } from "@react-navigation/native";
 
 const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   const [posts, setPosts] = useState([]);
@@ -21,12 +22,6 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   const [loggedInUserProfilePic, setLoggedInUserProfilePic] =
     useState(avatarImage);
   const [likedPosts, setLikedPosts] = useState([]);
-
-  useEffect(() => {
-    fetchData();
-    fetchLoggedInUserProfilePic();
-    getLikedPosts();
-  }, [loggedInUserID, isRefreshing, loggedInUserProfilePic]);
 
   const fetchData = async () => {
     try {
@@ -101,6 +96,14 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
     });
     setLikedPosts(likedPostsIDs);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      fetchLoggedInUserProfilePic();
+      getLikedPosts();
+    }, [loggedInUserID])
+  );
 
   const handleRefresh = () => {
     setIsRefreshing(true);

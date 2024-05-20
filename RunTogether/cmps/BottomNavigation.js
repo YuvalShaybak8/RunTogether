@@ -20,6 +20,7 @@ const BottomNavigation = () => {
   const handleLogout = async () => {
     try {
       await loginSignupService.logout();
+      setShowMenu(false);
       console.log("Logout successful");
       navigation.navigate("Login");
     } catch (error) {

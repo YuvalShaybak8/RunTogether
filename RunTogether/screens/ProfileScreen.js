@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,11 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import BottomNavigation from "../cmps/BottomNavigation.js";
-import client from "../backend/api/client.js";
-import { uploadService } from "../services/upload.service.js";
+import BottomNavigation from "../cmps/BottomNavigation";
+import client from "../backend/api/client";
+import { uploadService } from "../services/upload.service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ProfileContext } from "../cmps/ProfileContext";
 
 const ProfileScreen = ({ navigation }) => {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
@@ -27,6 +28,7 @@ const ProfileScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [loggedInUserID, setLoggedInUserID] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { setProfilePic } = useContext(ProfileContext);
 
   useEffect(() => {
     fetchLoggedInUser();
@@ -67,8 +69,8 @@ const ProfileScreen = ({ navigation }) => {
       console.log("data", data);
       setUsername(data.username);
       setEmail(data.email);
-      setProfileImage({ uri: data.image });
-      return data;
+      setProfileImage({ uri: data.image || require("../assets/avatar.jpg") });
+      setProfilePic(data.image || require("../assets/avatar.jpg"));
     } catch (error) {
       console.error("Error fetching logged in user:", error);
     }
@@ -107,7 +109,8 @@ const ProfileScreen = ({ navigation }) => {
         await client.put(`/user/${loggedInUserID}`, updatedUser);
 
         console.log("Success: Profile updated successfully!");
-        navigation.navigate("Home Page");
+        setProfilePic(updatedUser.image);
+        navigation.navigate("Home Page", { refresh: true });
       }
     } catch (error) {
       console.error("Error updating/creating user:", error);
