@@ -15,21 +15,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
 import { useFocusEffect } from "@react-navigation/native";
 import { ProfileContext } from "../cmps/ProfileContext";
+import { debounce } from "lodash";
 
 const HomePage = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loggedInUserID, setLoggedInUserID] = useState(null);
   const { profilePic, setProfilePic } = useContext(ProfileContext);
-  // const [loggedInUserProfilePic, setLoggedInUserProfilePic] =
-  //   useState(avatarImage);
   const [likedPosts, setLikedPosts] = useState([]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchData();
-      fetchLoggedInUserProfilePic();
-      getLikedPosts();
+      debouncedFetchData();
+      debouncedFetchLoggedInUserProfilePic();
+      debouncedGetLikedPosts();
     }, [loggedInUserID])
   );
 
@@ -106,7 +105,7 @@ const HomePage = ({ navigation }) => {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    fetchData();
+    debouncedFetchData();
     setIsRefreshing(false);
   };
 
@@ -155,6 +154,13 @@ const HomePage = ({ navigation }) => {
       />
     );
   };
+
+  const debouncedFetchData = useCallback(debounce(fetchData, 300), []);
+  const debouncedFetchLoggedInUserProfilePic = useCallback(
+    debounce(fetchLoggedInUserProfilePic, 300),
+    []
+  );
+  const debouncedGetLikedPosts = useCallback(debounce(getLikedPosts, 300), []);
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
