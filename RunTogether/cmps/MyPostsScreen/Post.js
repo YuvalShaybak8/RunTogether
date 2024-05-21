@@ -38,10 +38,6 @@ const Post = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("Post rendered", [item.description]);
-  }, [item.description]);
-
-  useEffect(() => {
     if (postImage !== null) {
       handleUpdate();
     }
@@ -50,7 +46,6 @@ const Post = ({
   const handleUpdate = async () => {
     setLoading(true);
     try {
-      console.log("postImage", postImage);
       const response = await client.get("/user/email/" + user.email);
       const existingUser = response.data;
       const base64Img = `data:image/jpg;base64,${await fetch(postImage.uri)
@@ -74,12 +69,10 @@ const Post = ({
         });
 
         const updatedUser = { ...existingUser, posts: updatedPosts };
-        console.log("updatedUser ", updatedUser);
         await client.put(`/user/${user._id}`, updatedUser);
 
         const postResponse = await client.get("/post/" + item._id);
         const currentPost = postResponse.data;
-        console.log("imgData.secure_url", imgData.secure_url);
         await client.put(`/post/${item._id}`, {
           ...currentPost,
           image: imgData.secure_url,
@@ -111,7 +104,6 @@ const Post = ({
     });
 
     if (!result.cancelled) {
-      console.log("picking image...", result.assets[0]);
       setPostImage({ uri: result.assets[0].uri });
     }
   };

@@ -7,10 +7,6 @@ const login = async (email, password) => {
     const { token, user } = response.data;
     await AsyncStorage.setItem("token", token);
     await AsyncStorage.setItem("loggedInUserID", user._id);
-    console.log(
-      "loggedInUserID ",
-      await AsyncStorage.getItem("loggedInUserID")
-    );
     return { token, user };
   } catch (error) {
     throw error;
@@ -40,10 +36,6 @@ const logout = async () => {
   try {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("loggedInUserID");
-    console.log(
-      "loggedInUserID ",
-      await AsyncStorage.getItem("loggedInUserID")
-    );
   } catch (error) {
     throw error;
   }

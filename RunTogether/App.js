@@ -21,7 +21,6 @@ export default function App() {
     const checkLoginStatus = async () => {
       try {
         const loggedInUserID = await AsyncStorage.getItem("loggedInUserID");
-        console.log("loggedInUserID:", loggedInUserID);
         if (loggedInUserID) {
           setIsLoggedIn(true);
         } else {
@@ -34,7 +33,6 @@ export default function App() {
     checkLoginStatus();
   }, []);
 
-  console.log("isLoggedIn:", isLoggedIn);
   if (isLoggedIn === null) {
     return null;
   }

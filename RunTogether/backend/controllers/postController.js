@@ -17,9 +17,7 @@ async function createPost(req, res) {
       likes: [],
       comments: [],
     });
-    console.log("newPost", newPost);
     const savedPost = await newPost.save();
-    console.log("savedPost", savedPost);
     res.status(201).json(savedPost);
   } catch (error) {
     console.error("Error saving post:", error);

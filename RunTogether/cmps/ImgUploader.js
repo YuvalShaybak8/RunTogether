@@ -32,7 +32,6 @@ export function ImgUploader({ onUploaded = null }) {
       const imgData = await uploadService.uploadImg(base64Img);
 
       setIsUploading(false);
-      console.log("imgData", imgData);
       if (imgData && imgData.secure_url) {
         onUploaded && onUploaded({ imgUrl: imgData.secure_url });
       } else {

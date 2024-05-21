@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -11,16 +11,20 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import loginSignupService from "../services/loginSignup.service.js";
+import { ProfileContext } from "./ProfileContext";
+import avatarImage from "../assets/avatar.jpg";
 
 const BottomNavigation = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState(new Animated.Value(1));
   const navigation = useNavigation();
+  const { setProfilePic } = useContext(ProfileContext);
 
   const handleLogout = async () => {
     try {
       await loginSignupService.logout();
       setShowMenu(false);
+      setProfilePic(avatarImage);
       console.log("Logout successful");
       navigation.navigate("Login");
     } catch (error) {

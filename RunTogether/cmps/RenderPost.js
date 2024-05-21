@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import avatarImage from "../assets/avatar.jpg";
 import LikesAndComments from "./LikesAndComments";
+import { MyPostsScreenService } from "../services/myPostsScreen.service.js";
 
 const RenderPost = ({
   item,
@@ -27,7 +28,9 @@ const RenderPost = ({
           />
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{item.username}</Text>
-            <Text style={styles.postDate}>{item.postDate}</Text>
+            <Text style={styles.postDate}>
+              {MyPostsScreenService.formatPostDate(item.createdAt)}
+            </Text>
           </View>
         </View>
         <Text style={styles.postDescription}>{item.description}</Text>

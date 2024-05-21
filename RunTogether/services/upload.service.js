@@ -16,7 +16,6 @@ async function uploadImg(base64Img) {
       body: formData,
     });
     const imgData = await res.json();
-    console.log("imgData", imgData);
     return imgData;
   } catch (err) {
     console.error("Failed to upload", err);

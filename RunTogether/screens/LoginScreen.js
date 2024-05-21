@@ -27,12 +27,8 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      console.log(
-        "loggedInUserID ",
-        await AsyncStorage.getItem("Login:     loggedInUserID")
-      );
       const { token, user } = await loginSignupService.login(email, password);
-      console.log("Login successful:", token, user);
+      console.log("Login successful:", user);
       navigation.navigate("Home Page", { refresh: true });
     } catch (error) {
       if (error.response && error.response.status === 401) {

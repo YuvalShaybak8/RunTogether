@@ -117,9 +117,11 @@ const CreatePost = ({ navigation }) => {
           onPress={handlePostPress}
           disabled={loading}
         >
-          <View style={styles.icon}>
-            <Feather name="send" size={22} color="white" />
-          </View>
+          {!loading && (
+            <View style={styles.icon}>
+              <Feather name="send" size={22} color="white" />
+            </View>
+          )}
           <Text style={styles.postButtonText}>
             {loading ? "Posting..." : "Post"}
           </Text>

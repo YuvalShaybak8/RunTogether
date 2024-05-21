@@ -66,7 +66,6 @@ const ProfileScreen = ({ navigation }) => {
       setLoggedInUserID(currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
-      console.log("data", data);
       setUsername(data.username);
       setEmail(data.email);
       setProfileImage({ uri: data.image || require("../assets/avatar.jpg") });
@@ -81,7 +80,6 @@ const ProfileScreen = ({ navigation }) => {
     try {
       const response = await client.get("/user/email/" + email);
       const existingUser = response.data;
-      console.log("existingUser", existingUser);
       if (existingUser) {
         const updatedUser = {
           _id: existingUser._id,

@@ -81,7 +81,6 @@ const HomePage = ({ navigation }) => {
   };
 
   const fetchLoggedInUserProfilePic = async () => {
-    console.log("fetching logged in user profile picture");
     try {
       const currentLoggedInUserID = await AsyncStorage.getItem(
         "loggedInUserID"
@@ -89,8 +88,7 @@ const HomePage = ({ navigation }) => {
       setLoggedInUserID(currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
-      console.log("data", data);
-      setProfilePic(data.image || avatarImage);
+      setProfilePic(data.image);
     } catch (error) {
       console.error("Error fetching logged in user:", error);
     }
