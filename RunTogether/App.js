@@ -19,12 +19,16 @@ export default function App() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const loggedInUserID = await AsyncStorage.getItem("loggedInUserID");
-      console.log("loggedInUserID:", loggedInUserID);
-      if (loggedInUserID) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
+      try {
+        const loggedInUserID = await AsyncStorage.getItem("loggedInUserID");
+        console.log("loggedInUserID:", loggedInUserID);
+        if (loggedInUserID) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
       }
     };
     checkLoginStatus();

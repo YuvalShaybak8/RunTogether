@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -14,14 +14,24 @@ import avatarImage from "../assets/avatar.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
 import { useFocusEffect } from "@react-navigation/native";
+import { ProfileContext } from "../cmps/ProfileContext";
 
-const HomePage = ({ navigation, handlePressOutsideMenu }) => {
+const HomePage = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loggedInUserID, setLoggedInUserID] = useState(null);
-  const [loggedInUserProfilePic, setLoggedInUserProfilePic] =
-    useState(avatarImage);
+  const { profilePic, setProfilePic } = useContext(ProfileContext);
+  // const [loggedInUserProfilePic, setLoggedInUserProfilePic] =
+  //   useState(avatarImage);
   const [likedPosts, setLikedPosts] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      fetchLoggedInUserProfilePic();
+      getLikedPosts();
+    }, [loggedInUserID])
+  );
 
   const fetchData = async () => {
     try {
@@ -71,6 +81,7 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
   };
 
   const fetchLoggedInUserProfilePic = async () => {
+    console.log("fetching logged in user profile picture");
     try {
       const currentLoggedInUserID = await AsyncStorage.getItem(
         "loggedInUserID"
@@ -78,12 +89,10 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
       setLoggedInUserID(currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
-      const userProfilePic = data.image;
-      setLoggedInUserProfilePic(userProfilePic);
-      return userProfilePic;
+      console.log("data", data);
+      setProfilePic(data.image || avatarImage);
     } catch (error) {
-      console.error("Error fetching logged in user profile picture:", error);
-      setLoggedInUserProfilePic(null);
+      console.error("Error fetching logged in user:", error);
     }
   };
 
@@ -96,14 +105,6 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
     });
     setLikedPosts(likedPostsIDs);
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchData();
-      fetchLoggedInUserProfilePic();
-      getLikedPosts();
-    }, [loggedInUserID])
-  );
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -162,7 +163,7 @@ const HomePage = ({ navigation, handlePressOutsideMenu }) => {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
         <HeaderComponent
-          loggedInUserProfilePic={loggedInUserProfilePic}
+          loggedInUserProfilePic={profilePic}
           navigation={navigation}
         />
         <FlatList

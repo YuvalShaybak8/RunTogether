@@ -33,7 +33,7 @@ const LoginScreen = ({ navigation }) => {
       );
       const { token, user } = await loginSignupService.login(email, password);
       console.log("Login successful:", token, user);
-      navigation.navigate("Home Page");
+      navigation.navigate("Home Page", { refresh: true });
     } catch (error) {
       if (error.response && error.response.status === 401) {
         console.warn("Login failed. Invalid email or password");
