@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    borderBottomWidth: 0, // Set to 0 to remove the underline
+    borderBottomWidth: 0,
   },
   passwordVisibleButton: {
     position: "absolute",

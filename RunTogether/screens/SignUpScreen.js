@@ -31,7 +31,7 @@ const SignUpScreen = ({ navigation }) => {
     setLoading(false);
 
     if (result.success) {
-      navigation.navigate("Home Page");
+      navigation.navigate("Home Page", { refresh: true });
     } else {
       console.error("Error signing up:", result.error);
     }
