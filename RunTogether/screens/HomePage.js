@@ -7,11 +7,10 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavigation from "../cmps/BottomNavigation.js";
 import HeaderComponent from "../cmps/HeaderComponent.js";
 import RenderPost from "../cmps/RenderPost.js";
-import avatarImage from "../assets/avatar.jpg";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import client from "../backend/api/client.js";
 import { useFocusEffect } from "@react-navigation/native";
 import { ProfileContext } from "../cmps/ProfileContext";
@@ -28,7 +27,7 @@ const HomePage = ({ navigation }) => {
     useCallback(() => {
       debouncedFetchData();
       debouncedFetchLoggedInUserProfilePic();
-      debouncedGetLikedPosts();
+      debouncedLoadLikedPosts();
     }, [loggedInUserID])
   );
 
@@ -93,14 +92,15 @@ const HomePage = ({ navigation }) => {
     }
   };
 
-  const getLikedPosts = async () => {
-    const likedPostsIDs = [];
-    posts.forEach((post) => {
-      if (post.likes.includes(loggedInUserID)) {
-        likedPostsIDs.push(post._id);
+  const loadLikedPosts = async () => {
+    try {
+      const likedPosts = await AsyncStorage.getItem("likedPosts");
+      if (likedPosts) {
+        setLikedPosts(JSON.parse(likedPosts));
       }
-    });
-    setLikedPosts(likedPostsIDs);
+    } catch (error) {
+      console.error("Error loading liked posts:", error);
+    }
   };
 
   const handleRefresh = () => {
@@ -130,12 +130,15 @@ const HomePage = ({ navigation }) => {
     }
   };
 
-  const updateLikedPosts = (postId) => {
+  const updateLikedPosts = async (postId) => {
+    let updatedLikedPosts = [];
     if (likedPosts.includes(postId)) {
-      setLikedPosts(likedPosts.filter((id) => id !== postId));
+      updatedLikedPosts = likedPosts.filter((id) => id !== postId);
     } else {
-      setLikedPosts([...likedPosts, postId]);
+      updatedLikedPosts = [...likedPosts, postId];
     }
+    setLikedPosts(updatedLikedPosts);
+    await AsyncStorage.setItem("likedPosts", JSON.stringify(updatedLikedPosts));
   };
 
   const isPostLiked = (postId) => {
@@ -160,7 +163,10 @@ const HomePage = ({ navigation }) => {
     debounce(fetchLoggedInUserProfilePic, 300),
     []
   );
-  const debouncedGetLikedPosts = useCallback(debounce(getLikedPosts, 300), []);
+  const debouncedLoadLikedPosts = useCallback(
+    debounce(loadLikedPosts, 300),
+    []
+  );
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">

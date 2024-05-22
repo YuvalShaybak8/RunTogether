@@ -58,7 +58,7 @@ export function ImgUploader({ onUploaded = null }) {
           style={[styles.button, styles.uploadButton]}
           onPress={uploadImg}
         >
-          <Text style={styles.buttonText}>Upload your photo</Text>
+          <Text style={styles.buttonText}>Upload a photo</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.photoButton]}

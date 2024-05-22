@@ -46,6 +46,7 @@ const RenderPost = ({
           item={item}
           toggleLike={toggleLike}
           isPostLiked={isPostLiked}
+          navigation={navigation} // Pass navigation prop here
         />
       </View>
     </TouchableOpacity>
@@ -86,16 +87,14 @@ const styles = StyleSheet.create({
   userName: {
     fontWeight: "bold",
     fontSize: 16,
-    color: "#333",
   },
   postDate: {
+    color: "gray",
     fontSize: 12,
-    color: "#666",
   },
   postDescription: {
     fontSize: 14,
     marginBottom: 10,
-    color: "#333",
   },
   postImage: {
     width: "100%",
@@ -104,12 +103,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   locationText: {
+    marginLeft: 5,
     fontSize: 14,
-    color: "#666",
-    marginBottom: 10,
+    color: "gray",
   },
 });
 

@@ -1,76 +1,64 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import likeIcon from "../assets/like.png";
-import fullLikeIcon from "../assets/like_full.png";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 
-const LikesAndComments = ({ item, toggleLike, isPostLiked }) => {
+const LikesAndComments = ({ item, toggleLike, isPostLiked, navigation }) => {
   return (
-    <View style={styles.likesAndComments}>
-      {toggleLike ? (
-        <TouchableOpacity
-          onPress={() => toggleLike(item._id)}
-          style={styles.likesContainer}
-        >
-          <Image
-            source={isPostLiked(item._id) ? fullLikeIcon : likeIcon}
-            style={[
-              styles.likeIcon,
-              { tintColor: isPostLiked(item._id) ? "#0866ff" : "#666" },
-            ]}
+    <View style={styles.container}>
+      <View style={styles.likesContainer}>
+        <TouchableOpacity onPress={() => toggleLike(item._id)}>
+          <Icon
+            name="thumbs-up"
+            size={20}
+            color={isPostLiked(item._id) ? "blue" : "gray"}
+            style={styles.likeIcon}
           />
-          <Text
-            style={[
-              styles.likeCount,
-              { color: isPostLiked(item._id) ? "#0866ff" : "#666" },
-            ]}
-          >
-            {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
-          </Text>
         </TouchableOpacity>
-      ) : (
-        <View style={styles.likesContainer}>
-          <Image source={likeIcon} style={[styles.likeIcon]} />
-          <Text style={[styles.likeCount]}>
-            {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
-          </Text>
-        </View>
-      )}
-
+        <Text style={styles.likeText}>{item.likes.length}</Text>
+      </View>
       <View style={styles.commentsContainer}>
-        <Text style={styles.commentCount}>
-          {item.comments.length} comment
-          {item.comments.length !== 1 ? "s" : ""}
-        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("PostDetails", { post: item })}
+        >
+          <Icon
+            name="comment"
+            size={20}
+            color="gray"
+            style={styles.commentIcon}
+          />
+        </TouchableOpacity>
+        <Text style={styles.commentText}>{item.comments.length}</Text>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  likesAndComments: {
+  container: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 10,
   },
   likesContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   likeIcon: {
-    width: 20,
-    height: 20,
-    margin: 5,
-    tintColor: "#666",
+    marginRight: 5,
   },
-  likeCount: {
+  likeText: {
     fontSize: 14,
-    color: "#666",
   },
-  commentsContainer: {},
-  commentCount: {
+  commentsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  commentIcon: {
+    marginRight: 5,
+  },
+  commentText: {
     fontSize: 14,
-    color: "#666",
-    marginRight: 10,
   },
 });
 
