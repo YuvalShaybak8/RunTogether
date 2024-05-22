@@ -1,5 +1,5 @@
 const postModel = require("../models/postModel.js");
-const jwt = require("jsonwebtoken"); // Import jsonwebtoken library
+const jwt = require("jsonwebtoken");
 
 async function createPost(req, res) {
   try {

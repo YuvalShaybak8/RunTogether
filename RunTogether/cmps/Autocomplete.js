@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
     width: "100%",
     zIndex: "999",
     borderRadius: 10,
-    height: 150, // Set a fixed height for the container if needed
+    height: 150,
   },
 });

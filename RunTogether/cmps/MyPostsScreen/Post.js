@@ -10,13 +10,10 @@ import {
 } from "react-native";
 import { MyPostsScreenService } from "../../services/myPostsScreen.service.js";
 import PostActions from "./PostActions.js";
-import likeIcon from "../../assets/like.png";
-import LikesAndComments from "../LikesAndComments.js";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import client from "../../backend/api/client.js";
 import { uploadService } from "../../services/upload.service.js";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Post = ({
   navigation,
@@ -25,9 +22,6 @@ const Post = ({
   posts,
   user,
   profileImage,
-  handleEditDescription,
-  handleDeleteDescription,
-  handleSaveDescription,
   setEditableDescription,
   setEditedDescription,
   editableDescription,

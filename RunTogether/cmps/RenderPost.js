@@ -46,7 +46,7 @@ const RenderPost = ({
           item={item}
           toggleLike={toggleLike}
           isPostLiked={isPostLiked}
-          navigation={navigation} // Pass navigation prop here
+          navigation={navigation}
         />
       </View>
     </TouchableOpacity>

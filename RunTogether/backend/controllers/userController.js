@@ -78,12 +78,11 @@ async function login(req, res) {
     const token = generateToken(user);
     res.status(200).json({ user, token });
   } catch (error) {
-    console.error(error); // Log the error
+    console.error(error);
     res.status(500).json({ message: "Error logging in" });
   }
 }
 
-// Update user profile
 async function updateUserProfile(req, res) {
   try {
     console.log("req.body", req.body);
@@ -101,7 +100,6 @@ async function updateUserProfile(req, res) {
   }
 }
 
-// Delete user
 async function deleteUser(req, res) {
   try {
     const { userId } = req.params;

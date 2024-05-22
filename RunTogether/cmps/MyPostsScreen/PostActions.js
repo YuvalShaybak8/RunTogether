@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
 
 const PostActions = ({
   item,
@@ -14,8 +13,6 @@ const PostActions = ({
   handleSaveDescription,
   handleDeletePost,
   editableDescription,
-  editedDescription,
-  setEditedDescription,
 }) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);

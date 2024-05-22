@@ -1,9 +1,4 @@
 import axios from "axios";
-import Constants from "expo-constants";
-
-// const { expoConfig } = Constants;
-// const IP = expoConfig.extra.IP;
-// const IP2 = process.env.IP;
 
 export default axios.create({ baseURL: `http://192.168.3.5:5000` }); // yuval pc
 

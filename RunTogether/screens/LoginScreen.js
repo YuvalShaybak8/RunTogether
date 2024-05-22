@@ -16,7 +16,6 @@ import {
 import { Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import loginSignupService from "../services/loginSignup.service.js";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
