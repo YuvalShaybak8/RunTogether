@@ -94,7 +94,8 @@ const HomePage = ({ navigation }) => {
 
   const loadLikedPosts = async () => {
     try {
-      const likedPosts = await AsyncStorage.getItem("likedPosts");
+      const likedPostsKey = `likedPosts_${loggedInUserID}`;
+      const likedPosts = await AsyncStorage.getItem(likedPostsKey);
       if (likedPosts) {
         setLikedPosts(JSON.parse(likedPosts));
       }
@@ -138,7 +139,11 @@ const HomePage = ({ navigation }) => {
       updatedLikedPosts = [...likedPosts, postId];
     }
     setLikedPosts(updatedLikedPosts);
-    await AsyncStorage.setItem("likedPosts", JSON.stringify(updatedLikedPosts));
+    const likedPostsKey = `likedPosts_${loggedInUserID}`;
+    await AsyncStorage.setItem(
+      likedPostsKey,
+      JSON.stringify(updatedLikedPosts)
+    );
   };
 
   const isPostLiked = (postId) => {
