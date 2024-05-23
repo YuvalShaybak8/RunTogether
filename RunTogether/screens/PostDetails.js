@@ -60,7 +60,10 @@ const PostDetails = ({ route, navigation }) => {
 
     return (
       <View style={styles.commentContainer}>
-        <Image source={{ uri: user.image }} style={styles.commentProfilePic} />
+        <Image
+          source={user.image ? { uri: user.image } : avatarImage}
+          style={styles.commentProfilePic}
+        />
         <View style={styles.commentTextContainer}>
           <Text style={styles.commentAuthor}>{user.username}</Text>
           <Text style={styles.commentText}>{item.text}</Text>
@@ -99,76 +102,73 @@ const PostDetails = ({ route, navigation }) => {
   const user = users[post.user];
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 54 : 0}
-      >
-        <View style={styles.container}>
-          <FlatList
-            data={[post]}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-              <>
-                <View style={styles.userContainer}>
-                  {user ? (
-                    <Image
-                      source={{ uri: user.image }}
-                      style={styles.profilePic}
-                    />
-                  ) : (
-                    <Image source={avatarImage} style={styles.profilePic} />
-                  )}
-                  <Text style={styles.userName}>
-                    {user ? user.username : "Loading..."}
-                  </Text>
-                  <Text style={styles.postDate}>{item.postDate}</Text>
-                </View>
-                <Text style={styles.postDescription}>{item.description}</Text>
-                {item.image && (
+    // <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 54 : 0}
+    >
+      <View style={styles.container}>
+        <FlatList
+          data={[post]}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <>
+              <View style={styles.userContainer}>
+                {user ? (
                   <Image
-                    source={{ uri: item.image }}
-                    style={styles.postImage}
+                    source={{ uri: user.image }}
+                    style={styles.profilePic}
                   />
+                ) : (
+                  <Image source={avatarImage} style={styles.profilePic} />
                 )}
-                {item.location && (
-                  <View style={styles.locationContainer}>
-                    <Text style={styles.locationText}>{item.location}</Text>
-                  </View>
-                )}
-                {item.likes && (
-                  <Text style={styles.likeCount}>
-                    {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
-                  </Text>
-                )}
-                <FlatList
-                  data={item.comments}
-                  renderItem={renderComment}
-                  keyExtractor={(item, index) => index.toString()}
-                  style={styles.commentsContainer}
-                />
-              </>
-            )}
+                <Text style={styles.userName}>
+                  {user ? user.username : "Loading..."}
+                </Text>
+                <Text style={styles.postDate}>{item.postDate}</Text>
+              </View>
+              <Text style={styles.postDescription}>{item.description}</Text>
+              {item.image && (
+                <Image source={{ uri: item.image }} style={styles.postImage} />
+              )}
+              {item.location && (
+                <View style={styles.locationContainer}>
+                  <Text style={styles.locationText}>{item.location}</Text>
+                </View>
+              )}
+              {item.likes && (
+                <Text style={styles.likeCount}>
+                  {item.likes.length} Like{item.likes.length !== 1 ? "s" : ""}
+                </Text>
+              )}
+              <FlatList
+                data={item.comments}
+                renderItem={renderComment}
+                keyExtractor={(item, index) => index.toString()}
+                style={styles.commentsContainer}
+              />
+            </>
+          )}
+        />
+        <View style={styles.commentInputContainer}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment..."
+            placeholderTextColor={"black"}
+            value={newComment}
+            onChangeText={handleCommentChange}
           />
-          <View style={styles.commentInputContainer}>
-            <TextInput
-              style={styles.commentInput}
-              placeholder="Add a comment..."
-              placeholderTextColor={"black"}
-              value={newComment}
-              onChangeText={handleCommentChange}
-            />
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={handleCommentSubmit}
-            >
-              <Text style={styles.sendButtonText}>Send</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.sendButton}
+            onPress={handleCommentSubmit}
+          >
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      </View>
+    </KeyboardAvoidingView>
+    // </TouchableWithoutFeedback>
   );
 };
 
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
   commentsContainer: {
     marginTop: 20,
     maxHeight: 350,
+    marginBottom: 80,
   },
   commentsTitle: {
     fontSize: 16,
