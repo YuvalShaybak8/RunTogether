@@ -7,12 +7,21 @@ const LikesAndComments = ({ item, toggleLike, isPostLiked, navigation }) => {
     <View style={styles.container}>
       <View style={styles.likesContainer}>
         <TouchableOpacity onPress={() => toggleLike(item._id)}>
-          <Icon
-            name="thumbs-up"
-            size={20}
-            color={isPostLiked(item._id) ? "blue" : "gray"}
-            style={styles.likeIcon}
-          />
+          <View
+            style={
+              isPostLiked(item._id)
+                ? styles.likeIconWrapper
+                : styles.unlikeIconWrapper
+            }
+          >
+            <Icon
+              name="thumbs-up"
+              size={20}
+              style={
+                isPostLiked(item._id) ? styles.likeIcon : styles.unlikeIcon
+              }
+            />
+          </View>
         </TouchableOpacity>
         <Text style={styles.likeText}>{item.likes.length}</Text>
       </View>
@@ -44,8 +53,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  likeIcon: {
+  likeIconWrapper: {
     marginRight: 5,
+    backgroundColor: "#1a7efe",
+    padding: 5,
+    borderRadius: 10,
+  },
+  unlikeIconWrapper: {
+    marginRight: 5,
+    backgroundColor: "transparent",
+    padding: 5,
+    borderRadius: 10,
+  },
+  likeIcon: {
+    color: "white",
+  },
+  unlikeIcon: {
+    color: "gray",
   },
   likeText: {
     fontSize: 14,
