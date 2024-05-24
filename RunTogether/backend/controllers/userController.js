@@ -111,21 +111,10 @@ async function updateUserProfile(req, res) {
   }
 }
 
-async function deleteUser(req, res) {
-  try {
-    const { userId } = req.params;
-    await UserModel.findByIdAndDelete(userId);
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}
-
 module.exports = {
   createUser,
   getUserByID,
   getUserByEmail,
   updateUserProfile,
-  deleteUser,
   login,
 };
