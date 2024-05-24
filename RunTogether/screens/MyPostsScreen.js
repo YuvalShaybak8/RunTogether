@@ -26,15 +26,15 @@ const MyPostsScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    fetchUserData();
-  }, [user.posts]);
+    const fetchData = async () => {
+      const userData = await MyPostsScreenService.fetchUser();
+      setUser(userData);
+      setPosts(userData.posts);
+      setProfileImage({ uri: userData.image });
+    };
 
-  const fetchUserData = async () => {
-    const userData = await MyPostsScreenService.fetchUser();
-    setUser(userData);
-    setPosts(userData.posts);
-    setProfileImage({ uri: userData.image });
-  };
+    fetchData();
+  }, []);
 
   return (
     <View style={styles.container}>

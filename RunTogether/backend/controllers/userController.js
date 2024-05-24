@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const avatarImg = "../assets/avatar.jpg";
 const jwt = require("jsonwebtoken");
 const { generateToken } = require("../auth/tokenUtils.js");
+const { redis } = require("../utils/redisClient.js");
 
 async function createUser(req, res) {
   console.log("req.body", req.body);
@@ -36,11 +37,21 @@ async function createUser(req, res) {
 async function getUserByID(req, res) {
   try {
     const { userId } = req.params;
-    const user = await UserModel.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json(user);
+    const cacheKey = `posts:user:${userId}`;
+    redis.get(cacheKey, async (err, data) => {
+      if (err) throw err;
+
+      if (data) {
+        return res.status(200).json(JSON.parse(data));
+      } else {
+        const user = await UserModel.findById(userId);
+        redis.setex(cacheKey, 3600, JSON.stringify(user));
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(user);
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

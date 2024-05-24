@@ -7,6 +7,7 @@ export const MyPostsScreenService = {
       const currentLoggedInUserID = await AsyncStorage.getItem(
         "loggedInUserID"
       );
+      console.log("currentLoggedInUserID", currentLoggedInUserID);
       const userResponse = await client.get(`/user/${currentLoggedInUserID}`);
       const { data } = userResponse;
       return data;
