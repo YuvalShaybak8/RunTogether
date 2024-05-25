@@ -25,11 +25,21 @@ const HomePage = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      debouncedFetchData();
-      debouncedFetchLoggedInUserProfilePic();
-      debouncedLoadLikedPosts();
+      fetchLoggedInUserProfilePic().then(() => {
+        debouncedFetchData();
+        debouncedLoadLikedPosts();
+      });
     }, [loggedInUserID])
   );
+
+  useEffect(() => {
+    (async () => {
+      const currentLoggedInUserID = await AsyncStorage.getItem(
+        "loggedInUserID"
+      );
+      setLoggedInUserID(currentLoggedInUserID);
+    })();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -94,10 +104,19 @@ const HomePage = ({ navigation }) => {
 
   const loadLikedPosts = async () => {
     try {
-      const likedPostsKey = `likedPosts_${loggedInUserID}`;
-      const likedPosts = await AsyncStorage.getItem(likedPostsKey);
-      if (likedPosts) {
-        setLikedPosts(JSON.parse(likedPosts));
+      const currentLoggedInUserID = await AsyncStorage.getItem(
+        "loggedInUserID"
+      );
+      if (currentLoggedInUserID) {
+        const likedPostsKey = `likedPosts_${currentLoggedInUserID}`;
+        const likedPosts = await AsyncStorage.getItem(likedPostsKey);
+        if (likedPosts) {
+          setLikedPosts(JSON.parse(likedPosts));
+        } else {
+          setLikedPosts([]); // Ensure to reset if no likes found
+        }
+      } else {
+        setLikedPosts([]); // Reset liked posts if no user is logged in
       }
     } catch (error) {
       console.error("Error loading liked posts:", error);
@@ -164,10 +183,6 @@ const HomePage = ({ navigation }) => {
   };
 
   const debouncedFetchData = useCallback(debounce(fetchData, 300), []);
-  const debouncedFetchLoggedInUserProfilePic = useCallback(
-    debounce(fetchLoggedInUserProfilePic, 300),
-    []
-  );
   const debouncedLoadLikedPosts = useCallback(
     debounce(loadLikedPosts, 300),
     []
