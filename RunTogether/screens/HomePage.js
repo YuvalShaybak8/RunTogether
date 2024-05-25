@@ -25,10 +25,9 @@ const HomePage = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchLoggedInUserProfilePic().then(() => {
-        debouncedFetchData();
-        debouncedLoadLikedPosts();
-      });
+      debouncedFetchData();
+      debouncedFetchLoggedInUserProfilePic();
+      debouncedLoadLikedPosts();
     }, [loggedInUserID])
   );
 
@@ -113,10 +112,10 @@ const HomePage = ({ navigation }) => {
         if (likedPosts) {
           setLikedPosts(JSON.parse(likedPosts));
         } else {
-          setLikedPosts([]); // Ensure to reset if no likes found
+          setLikedPosts([]);
         }
       } else {
-        setLikedPosts([]); // Reset liked posts if no user is logged in
+        setLikedPosts([]);
       }
     } catch (error) {
       console.error("Error loading liked posts:", error);
@@ -183,6 +182,10 @@ const HomePage = ({ navigation }) => {
   };
 
   const debouncedFetchData = useCallback(debounce(fetchData, 300), []);
+  const debouncedFetchLoggedInUserProfilePic = useCallback(
+    debounce(fetchLoggedInUserProfilePic, 300),
+    []
+  );
   const debouncedLoadLikedPosts = useCallback(
     debounce(loadLikedPosts, 300),
     []

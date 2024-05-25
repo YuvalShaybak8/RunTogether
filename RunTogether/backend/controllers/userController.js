@@ -80,8 +80,7 @@ async function login(req, res) {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    const isMatch = await bcrypt.compare(password, user.password); // Compare hashed passwords
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
@@ -105,6 +104,7 @@ async function updateUserProfile(req, res) {
       { username, email, image, posts },
       { new: true }
     );
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
