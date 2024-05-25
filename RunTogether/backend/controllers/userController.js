@@ -99,17 +99,28 @@ async function updateUserProfile(req, res) {
     console.log("req.params", req.params);
     const { userId } = req.params;
     const { username, image, email, posts } = req.body;
+
+    // Update user profile in the database
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { username, email, image, posts },
       { new: true }
     );
 
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the cache with the new user profile data
+    const cacheKey = `posts:user:${userId}`;
+    redis.setex(cacheKey, 3600, JSON.stringify(updatedUser));
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }
+
 
 module.exports = {
   createUser,

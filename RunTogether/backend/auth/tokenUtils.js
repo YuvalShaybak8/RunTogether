@@ -22,10 +22,18 @@ function verifyToken(req, res, next) {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ message: "Invalid token" });
+      if (err.name === "TokenExpiredError") {
+        const newToken = generateToken(decoded.user);
+        res.set("Authorization", newToken);
+        req.user = decoded.user;
+        next();
+      } else {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+    } else {
+      req.user = decoded.user;
+      next();
     }
-    req.user = decoded.user;
-    next();
   });
 }
 
