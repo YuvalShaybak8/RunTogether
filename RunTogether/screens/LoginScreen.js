@@ -63,7 +63,7 @@ const LoginScreen = ({ navigation }) => {
             <Image source={require("../assets/logo.png")} style={styles.logo} />
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Run Together</Text>
-              <Text style={styles.subtitle}>Log into your account</Text>
+              <Text style={styles.subtitle}>Login into your account</Text>
             </View>
             <View style={styles.inputContainer}>
               <View style={styles.icon}>
@@ -120,7 +120,7 @@ const LoginScreen = ({ navigation }) => {
                   style={styles.loginButton}
                   onPress={handleLogin}
                 >
-                  <Text style={styles.loginButtonText}>Log in</Text>
+                  <Text style={styles.loginButtonText}>Login</Text>
                 </TouchableOpacity>
               </>
             )}

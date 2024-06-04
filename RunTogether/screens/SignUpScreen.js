@@ -54,7 +54,6 @@ const SignUpScreen = ({ navigation }) => {
             <Image source={require("../assets/logo.png")} style={styles.logo} />
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Sign up</Text>
-              <Text style={styles.subtitle}>Create your account</Text>
             </View>
             <View style={styles.inputContainer}>
               <View style={styles.icon}>
@@ -116,8 +115,11 @@ const SignUpScreen = ({ navigation }) => {
                 style={{ marginTop: 20 }}
               />
             )}
-            <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
-              <Text style={styles.loginButtonText}>Create your account</Text>
+            <TouchableOpacity
+              style={styles.signupButton}
+              onPress={handleSignUp}
+            >
+              <Text style={styles.signupButtonText}>Create your account</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
   },
-  loginButton: {
+  signupButton: {
     backgroundColor: "#f7706d",
     width: "80%",
     alignItems: "center",
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 30,
   },
-  loginButtonText: {
+  signupButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },
