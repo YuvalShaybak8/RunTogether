@@ -45,16 +45,19 @@ const ProfileScreen = ({ navigation }) => {
       alert("Sorry, we need camera roll permissions to make this work!");
       return;
     }
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setProfileImage({ uri: result.assets[0].uri });
+      if (!result.canceled) {
+        setProfileImage({ uri: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.log("Error selecting image:", error)
     }
   };
 

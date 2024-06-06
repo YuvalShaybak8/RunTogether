@@ -73,7 +73,7 @@ const Post = ({
         });
 
         console.log("Success: Post image updated successfully!");
-        navigation.navigate("My Posts");
+        setUser(updatedUser);
       }
     } catch (error) {
       console.log("Error updating/creating user:", error);
@@ -104,7 +104,6 @@ const Post = ({
     } catch (error) {
       console.log("Error selecting image:", error)
     }
-
   };
 
   const isLastItem = index === posts.length - 1;
