@@ -90,16 +90,21 @@ const Post = ({
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
 
-    if (!result.cancelled) {
-      setPostImage({ uri: result.assets[0].uri });
+      if (!result.canceled) {
+        setPostImage({ uri: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.log("Error selecting image:", error)
     }
+
   };
 
   const isLastItem = index === posts.length - 1;
