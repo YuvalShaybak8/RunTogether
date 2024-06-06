@@ -54,7 +54,6 @@ const MyPostsScreen = () => {
             handleEditDescription={MyPostsScreenService.handleEditDescription}
             handleSaveDescription={MyPostsScreenService.handleSaveDescription}
             handleDeleteDescription={MyPostsScreenService.handleDeletePost}
-            handleEditImage={MyPostsScreenService.handleEditImage}
             setEditableDescription={setEditableDescription}
             setEditedDescription={setEditedDescription}
             editableDescription={editableDescription}
